@@ -166,7 +166,7 @@ function makeChordVis(error, data){
 
         chord_text
             .transition()
-            .delay(500)
+            .delay(750)
             .duration(0)
             .attr('text-anchor', function(d, i){
                     const a = (curr_index + 10)%40;
