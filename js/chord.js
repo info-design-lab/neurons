@@ -210,7 +210,7 @@ function makeChordVis(error, data){
                     ])
                 .attr('d', line)
                 .style('fill', 'none')
-                .style('stroke', () => ((d == chord_data.length - 1) ? 'ef3b2c' : '74a9cf'))
+                .style('stroke', () => ((d == chord_data.length - 1) ? '#ef3b2c' : '#74a9cf'))
                 .style('stroke-width', function(){
                     if(d == chord_data.length - 1) return 1;
                     return 5 - d*2
@@ -229,7 +229,7 @@ function makeChordVis(error, data){
                     ])
                 .attr('d', line)
                 .style('fill', 'none')
-                .style('stroke', () => ((d == chord_data.length - 1) ? 'ef3b2c' : '74a9cf'))
+                .style('stroke', () => ((d == chord_data.length - 1) ? '#ef3b2c' : '#74a9cf'))
                 .style('stroke-width', function(){
                     if(d == chord_data.length - 1) return 1;
                     return 5 - d*2
@@ -249,7 +249,6 @@ function makeChordVis(error, data){
         var legend = svg.append('g')
                         .attr('transform', 'translate(' + (width/2 + r + 300) + ', ' + Math.max(0, height/2 + margin.top -  legend_height/2) + ')');
 
-
         legend.append('text')
             .attr('x', legend_width*0.5)
             .attr('y', 20)
@@ -264,7 +263,7 @@ function makeChordVis(error, data){
                 .attr('y1', i*20 + 40)
                 .attr('y2', i*20 + 40)
                 .style('fill', 'none')
-                .style('stroke', () => ((d == 38) ? 'ef3b2c' : '74a9cf'))
+                .style('stroke', () => ((d == 38) ? '#ef3b2c' : '#74a9cf'))
                 .style('stroke-width', function(){
                     if(d == 38) return 1;
                     return 5 - d*2
@@ -285,7 +284,7 @@ function makeChordVis(error, data){
                 .attr('y1', i*20 + 30 + 150)
                 .attr('y2', i*20 + 30 + 150)
                 .style('fill', 'none')
-                .style('stroke', () => ((d == 38) ? 'ef3b2c' : '74a9cf'))
+                .style('stroke', () => ((d == 38) ? '#ef3b2c' : '#74a9cf'))
                 .style('stroke-width', function(){
                     if(d == 38) return 1;
                     return 5 - d*2
