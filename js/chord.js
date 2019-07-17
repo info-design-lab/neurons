@@ -63,6 +63,13 @@ function makeChordVis(error, data){
                 .attr('width', width + margin.left + margin.right)
                 .attr('height', height + margin.top + margin.bottom);
 
+    svg.append('text')
+        .attr('text-anchor', 'middle')
+        .attr('x', width/2)
+        .attr('y', 50)
+        .attr('font-size', 40)
+        .text("Which species is similar to other species")
+
     var angleMap = d3.scaleLinear().domain([0, 40]).range([
         0, 
         2*Math.PI]);
@@ -158,6 +165,9 @@ function makeChordVis(error, data){
             });
 
         chord_text
+            .transition()
+            .delay(500)
+            .duration(0)
             .attr('text-anchor', function(d, i){
                     const a = (curr_index + 10)%40;
                     const b = (curr_index + 30)%40;
@@ -224,7 +234,7 @@ function makeChordVis(error, data){
                     if(d == chord_data.length - 1) return 1;
                     return 5 - d*2
                 })
-                .style("stroke-dasharray", "10,10")
+                .style("stroke-dasharray", "8,4")
                 .style('opacity', 0)
                 .attr('class', 'connections');
         });
@@ -237,7 +247,7 @@ function makeChordVis(error, data){
         var legend_width = 200;
         var legend_height = 100;
         var legend = svg.append('g')
-                        .attr('transform', 'translate(' + (width - legend_width) + ', ' + Math.max(0, height - legend_height) + ')');
+                        .attr('transform', 'translate(' + (width/2 + r + 300) + ', ' + Math.max(0, height/2 + margin.top) + ')');
 
 
         legend.append('text')
@@ -265,7 +275,7 @@ function makeChordVis(error, data){
                 .attr('y', i*20 + 40)
                 .attr('alignment-baseline', 'middle')
                 .text(function(){
-                    if(d == 38) return 'least closest' ;
+                    if(d == 38) return 'farthest' ;
                     return (d + 1) + 'st closest'
                 });
 
@@ -280,14 +290,14 @@ function makeChordVis(error, data){
                     if(d == 38) return 1;
                     return 5 - d*2
                 })
-                .style("stroke-dasharray", "10,10");
+                .style("stroke-dasharray", "8,4");
 
             legend.append('text')
                 .attr('x', 60)
                 .attr('y', i*20 + 30 + 150)
                 .attr('alignment-baseline', 'middle')
                 .text(function(){
-                    if(d == 38) return 'least closest' ;
+                    if(d == 38) return 'farthest' ;
                     return (d + 1) + 'st closest'
                 });
         });
