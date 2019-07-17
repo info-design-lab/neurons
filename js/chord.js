@@ -47,34 +47,29 @@ function makeChordVis(error, data){
     // sort the orgranisms based on the "order"
     data = groupOrders(data);
 
+    const margin = {
+        top: 180,
+        bottom: 180,
+        left: 0,
+        right: 0
+    }
     var width = document.body.clientWidth;
-    var height = width/2;
+    var height = width/4;
     var r = height/2 - 100;
 
     var svg = d3.select('#chord-diagram')
                 .append('svg')
-                .attr('width', width)
-                .attr('height', height);
+                .attr('width', width + margin.left + margin.right)
+                .attr('height', height + margin.top + margin.bottom);
 
     var angleMap = d3.scaleLinear().domain([0, 40]).range([
         0, 
         2*Math.PI]);
 
-    var g = svg.append('g').attr('transform', 'translate(' + width/2 + ',' + height/2 +') rotate(' + (-angleMap(curr_index + 0.5)*180/Math.PI - 180) + ')');
-
-    // Create the groupings in the circle
-    var offset = 0;
-    for(var i = 0; i < order_count.length; i++){
-        g.append("path")
-            .attr('d', d3.arc()
-                .innerRadius(r - 1)
-                .outerRadius(r + 3)
-                .startAngle(angleMap(offset) + Math.PI/2)
-                .endAngle(angleMap(offset + order_count[i]) + Math.PI/2)
-                )
-            .style('fill', order_color[order_names[i]]);
-        offset += order_count[i];
-    }
+    var g = svg.append('g')
+                .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
+                .append('g')
+                .attr('transform', 'translate(' + width/2 + ',' + height/2 +') rotate(' + (-angleMap(curr_index + 0.5)*180/Math.PI - 180) + ')');
 
     var chord_organism = g.selectAll('circle')
         .data(data)
@@ -97,18 +92,29 @@ function makeChordVis(error, data){
 
     var chord_text = chord_organism.append('text')
                 .attr('text-anchor', function(d, i){
-                    if((i < 30) && (i > 9)){
-                        return "end";
+                    const a = (curr_index + 10)%40;
+                    const b = (curr_index + 30)%40;
+
+                    if((i < b) && (i > a) && (b > a)){
+                        return "start";
+                    } else if(!((i < a) && (i > b)) && (a > b)){
+                        return "start";
                     }
-                    return "start";
+
+                    return "end";
                 })
                 .attr('alignment-baseline', "middle")
                 .attr('transform', function(d, i){
-                    const x = (r + 40)*Math.cos(angleMap(i + 0.5));
-                    const y = (r + 40)*Math.sin(angleMap(i + 0.5));
-                    var theta = (angleMap(i+ 0.5)*180/Math.PI);
+                    const x = ((r + 40)*Math.cos(angleMap(i+ 0.5)));
+                    const y = ((r + 40)*Math.sin(angleMap(i+ 0.5)));
+                    var theta = (angleMap(i+ 0.5)*180/Math.PI) - 180;
+                    
+                    const a = (curr_index + 10)%40;
+                    const b = (curr_index + 30)%40;
 
-                    if((i < 30) && (i > 9)){
+                    if((i < b) && (i > a) && (b > a)){
+                        theta += 180;
+                    } else if(!((i < a) && (i > b)) && (a > b)){
                         theta += 180;
                     }
 
@@ -121,57 +127,32 @@ function makeChordVis(error, data){
                 .x(function (d) { return d[0]; })
                 .y(function (d) { return d[1]; });
 
-    // Create chord connections based on the ratio
-    data_sorted = [...data].sort(function(a, b){
-        const r1 = a["Brain Mass"]/a["Body Mass"];
-        const r2 = b["Brain Mass"]/b["Body Mass"];
+    createChords();
 
-        return r1 - r2
-    });
-
-    data_sorted.forEach(function(d, i){
-        const index1 = data.indexOf(d);
-        for(var j = 1; j < num_connections + 1; j++){
-            if(i + j < data_sorted.length){
-                var index2 = data.indexOf(data_sorted[i + j]);
-                // make connection between i and i + j
-                g.append('path')
-                    .datum([
-                        [(r)*Math.cos(angleMap(index1 + 0.5)), (r)*Math.sin(angleMap(index1 + 0.5))],
-                        [0, 0],
-                        [(r)*Math.cos(angleMap(index2 + 0.5)), (r)*Math.sin(angleMap(index2 + 0.5))]
-                        ])
-                    .attr('d', line)
-                    .style('fill', 'none')
-                    .style('stroke', '#a8a8a8')
-                    .style('stroke-width', '2px')
-                    .style('opacity', 0)
-                    .attr('id', 'connection_' + index1 + '_' + index2)
-                    .attr('class', 'connections');
-            }
-        }
-    })
-
-
-    transition_chord();
+    // Create the groupings in the circle
+    var offset = 0;
+    for(var i = 0; i < order_count.length; i++){
+        g.append("path")
+            .attr('d', d3.arc()
+                .innerRadius(r - 1)
+                .outerRadius(r + 3)
+                .startAngle(angleMap(offset) + Math.PI/2)
+                .endAngle(angleMap(offset + order_count[i]) + Math.PI/2)
+                )
+            .style('fill', order_color[order_names[i]]);
+        offset += order_count[i];
+    }
 
     function transition_chord(){
-        g.transition().duration(1000)
-            .attr('transform', 'translate(' + width/2 + ',' + height/2 +') rotate(' + (-angleMap(curr_index + 0.5)*180/Math.PI - 180) + ')')
+        g.transition().duration(2000)
+            .attr('transform', 
+                'translate(' + width/2 + ',' + height/2 +') rotate(' + (-angleMap(curr_index + 0.5)*180/Math.PI - 180) + ')');
+
+        d3.selectAll('.connections').transition().duration(1000)
+            .style('opacity', 0)
             .on('end', function(){
-                g.selectAll('.connections')
-                    .style('stroke', function(d, i){
-                        if(selectedPath(this.id)) return 'black';
-                        return '#a8a8a8';
-                    })
-                    .style('stroke-width', function(d, i){
-                        if(selectedPath(this.id)) return 5;
-                        return 2;
-                    })
-                    .style('opacity', function(){
-                        if(selectedPath(this.id)) return 1;
-                        return 0;
-                    })
+                d3.selectAll('.connections').remove()
+                createChords()
             });
 
         chord_text
@@ -205,6 +186,51 @@ function makeChordVis(error, data){
                 });
     }
 
+    function createChords(){
+        // Create chord based on the ratios
+        var chord_data = getChordData('Brain Mass', 'Body Mass');
+        [0, 1, 2, chord_data.length - 1].forEach(function(d, i){
+            g.append('path')
+                .datum([
+                    [(r)*Math.cos(angleMap(curr_index + 0.5)), (r)*Math.sin(angleMap(curr_index + 0.5))],
+                    [0, 0],
+                    [(r)*Math.cos(angleMap(chord_data[d][1] + 0.5)), (r)*Math.sin(angleMap(chord_data[d][1] + 0.5))]
+                    ])
+                .attr('d', line)
+                .style('fill', 'none')
+                .style('stroke', () => ((d == chord_data.length - 1) ? 'ef3b2c' : '74a9cf'))
+                .style('stroke-width', function(){
+                    if(d == chord_data.length - 1) return 1;
+                    return 5 - d*2
+                })
+                .style('opacity', 0)
+                .attr('class', 'connections');
+        });
+
+        var chord_data = getChordData('Neurons Cortex', 'Neurons Whole Brain');
+        [0, 1, 2, chord_data.length - 1].forEach(function(d, i){
+            g.append('path')
+                .datum([
+                    [(r)*Math.cos(angleMap(curr_index + 0.5)), (r)*Math.sin(angleMap(curr_index + 0.5))],
+                    [0, 0],
+                    [(r)*Math.cos(angleMap(chord_data[d][1] + 0.5)), (r)*Math.sin(angleMap(chord_data[d][1] + 0.5))]
+                    ])
+                .attr('d', line)
+                .style('fill', 'none')
+                .style('stroke', () => ((d == chord_data.length - 1) ? 'ef3b2c' : '74a9cf'))
+                .style('stroke-width', function(){
+                    if(d == chord_data.length - 1) return 1;
+                    return 5 - d*2
+                })
+                .style("stroke-dasharray", "4,4")
+                .style('opacity', 0)
+                .attr('class', 'connections');
+        });
+
+        d3.selectAll('.connections').transition().duration(1000)
+            .style('opacity', 1)
+    }
+
     function groupOrders(data){
         group1 = [];
         group2 = [];
@@ -236,6 +262,28 @@ function makeChordVis(error, data){
             }
         }
         return false;
+    }
+
+    function getChordData(num, denom){
+        var ratios = [];
+        for(var i in data){
+            ratios.push(data[i][num]/data[i][denom]);
+        }
+
+        const selected_ratio = data[curr_index][num]/data[curr_index][denom];
+        var differences = [];
+
+        for(var i in ratios){
+            if(i != curr_index){
+                differences.push([Math.abs(selected_ratio - ratios[i]), parseInt(i)]);
+            }
+        }
+
+        differences.sort(function(a, b){
+            return b[0] - a[0]
+        });
+
+        return differences;
     }
 
 }
