@@ -47,15 +47,16 @@ function makeChordVis(error, data){
     // sort the orgranisms based on the "order"
     data = groupOrders(data);
 
+    var screenScale = d3.scaleLinear().domain([0, 2560]).range([0, document.body.clientWidth]);
     const margin = {
-        top: 180,
-        bottom: 180,
+        top: screenScale(500),
+        bottom: screenScale(500),
         left: 0,
         right: 0
     }
     var width = document.body.clientWidth;
     var height = width/4;
-    var r = height/2 - 100;
+    var r = height*0.6 - screenScale(100);
 
     var svg = d3.select('#chord-diagram')
                 .append('svg')
@@ -78,11 +79,11 @@ function makeChordVis(error, data){
     var circles = chord_organism.append('circle')
                 .attr('cx', (d, i) => (r + 20)*Math.cos(angleMap(i + 0.5)))
                 .attr('cy', (d, i) => (r + 20)*Math.sin(angleMap(i + 0.5)))
-                .attr('r', 13)
+                .attr('r', screenScale(15))
                 .attr('id', (d, i) => "circle_" + i)
                 .style('fill', "#a8a8a8")
                 .style('stroke', (d, i) => ((i == curr_index) ? ("red") : "transparent"))
-                .style('stroke-eright', 2)
+                .style('stroke-weight', 2)
                 .on('click', function(d, i){
                     d3.select("#circle_" + curr_index).style('stroke', 'transparent');
                     curr_index = parseInt(this.id.split('_')[1]);
@@ -134,8 +135,8 @@ function makeChordVis(error, data){
     for(var i = 0; i < order_count.length; i++){
         g.append("path")
             .attr('d', d3.arc()
-                .innerRadius(r - 1)
-                .outerRadius(r + 3)
+                .innerRadius(r - screenScale(1))
+                .outerRadius(r + screenScale(3))
                 .startAngle(angleMap(offset) + Math.PI/2)
                 .endAngle(angleMap(offset + order_count[i]) + Math.PI/2)
                 )
@@ -222,7 +223,7 @@ function makeChordVis(error, data){
                     if(d == chord_data.length - 1) return 1;
                     return 5 - d*2
                 })
-                .style("stroke-dasharray", "4,4")
+                .style("stroke-dasharray", "10,10")
                 .style('opacity', 0)
                 .attr('class', 'connections');
         });
