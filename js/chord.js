@@ -129,6 +129,7 @@ function makeChordVis(error, data){
                 .y(function (d) { return d[1]; });
 
     createChords();
+    createLegend();
 
     // Create the groupings in the circle
     var offset = 0;
@@ -230,6 +231,74 @@ function makeChordVis(error, data){
 
         d3.selectAll('.connections').transition().duration(1000)
             .style('opacity', 1)
+    }
+
+    function createLegend(){
+        var legend_width = 200;
+        var legend_height = 100;
+        var legend = svg.append('g')
+                        .attr('transform', 'translate(' + (width - legend_width) + ', ' + Math.max(0, height - legend_height) + ')');
+
+
+        legend.append('text')
+            .attr('x', legend_width*0.5)
+            .attr('y', 20)
+            .attr('text-anchor', 'middle')
+            .text('Brain Weight/Body Weight');
+
+
+        [0, 1, 2, 38].forEach(function(d, i){
+            legend.append('line')
+                .attr('x1', 0)
+                .attr('x2', 50)
+                .attr('y1', i*20 + 40)
+                .attr('y2', i*20 + 40)
+                .style('fill', 'none')
+                .style('stroke', () => ((d == 38) ? 'ef3b2c' : '74a9cf'))
+                .style('stroke-width', function(){
+                    if(d == 38) return 1;
+                    return 5 - d*2
+                });
+
+            legend.append('text')
+                .attr('x', 60)
+                .attr('y', i*20 + 40)
+                .attr('alignment-baseline', 'middle')
+                .text(function(){
+                    if(d == 38) return 'least closest' ;
+                    return (d + 1) + 'st closest'
+                });
+
+            legend.append('line')
+                .attr('x1', 0)
+                .attr('x2', 50)
+                .attr('y1', i*20 + 30 + 150)
+                .attr('y2', i*20 + 30 + 150)
+                .style('fill', 'none')
+                .style('stroke', () => ((d == 38) ? 'ef3b2c' : '74a9cf'))
+                .style('stroke-width', function(){
+                    if(d == 38) return 1;
+                    return 5 - d*2
+                })
+                .style("stroke-dasharray", "10,10");
+
+            legend.append('text')
+                .attr('x', 60)
+                .attr('y', i*20 + 30 + 150)
+                .attr('alignment-baseline', 'middle')
+                .text(function(){
+                    if(d == 38) return 'least closest' ;
+                    return (d + 1) + 'st closest'
+                });
+        });
+
+        legend.append('text')
+            .attr('x', legend_width*0.5)
+            .attr('y', 150)
+            .attr('text-anchor', 'middle')
+            .text('Neurons Cortex/Total Neurons');
+
+
     }
 
     function groupOrders(data){
