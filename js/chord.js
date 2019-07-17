@@ -166,7 +166,7 @@ function makeChordVis(error, data){
 
         chord_text
             .transition()
-            .delay(750)
+            .delay(1000)
             .duration(0)
             .attr('text-anchor', function(d, i){
                     const a = (curr_index + 10)%40;
@@ -201,7 +201,7 @@ function makeChordVis(error, data){
     function createChords(){
         // Create chord based on the ratios
         var chord_data = getChordData('Brain Mass', 'Body Mass');
-        [0, 1, 2, chord_data.length - 1].forEach(function(d, i){
+        [chord_data.length - 1, 0, 1, 2].forEach(function(d, i){
             g.append('path')
                 .datum([
                     [(r)*Math.cos(angleMap(curr_index + 0.5)), (r)*Math.sin(angleMap(curr_index + 0.5))],
@@ -220,7 +220,7 @@ function makeChordVis(error, data){
         });
 
         var chord_data = getChordData('Neurons Cortex', 'Neurons Whole Brain');
-        [0, 1, 2, chord_data.length - 1].forEach(function(d, i){
+        [chord_data.length - 1, 0, 1, 2].forEach(function(d, i){
             g.append('path')
                 .datum([
                     [(r)*Math.cos(angleMap(curr_index + 0.5)), (r)*Math.sin(angleMap(curr_index + 0.5))],
@@ -245,9 +245,9 @@ function makeChordVis(error, data){
 
     function createLegend(){
         var legend_width = 200;
-        var legend_height = 100;
+        var legend_height = 400;
         var legend = svg.append('g')
-                        .attr('transform', 'translate(' + (width/2 + r + 300) + ', ' + Math.max(0, height/2 + margin.top) + ')');
+                        .attr('transform', 'translate(' + (width/2 + r + 300) + ', ' + Math.max(0, height/2 + margin.top -  legend_height/2) + ')');
 
 
         legend.append('text')
