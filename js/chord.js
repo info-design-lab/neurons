@@ -108,7 +108,6 @@ function makeChordVis(error, data){
                 })
                 .attr('alignment-baseline', "middle")
                 .attr('transform', function(d, i){
-                    console.log(i);
                     const x = ((r + 40)*Math.cos(angleMap(i+ 0.5)));
                     const y = ((r + 40)*Math.sin(angleMap(i+ 0.5)));
                     var theta = (angleMap(i+ 0.5)*180/Math.PI) - 180;
@@ -132,7 +131,7 @@ function makeChordVis(error, data){
     chord_organism.append("path")
         .attr('d', d3.arc()
                 .innerRadius(r)
-                .outerRadius(r + 200)
+                .outerRadius(r + screenScale(400))
                 .startAngle((d, i) => (angleMap(i)  + Math.PI/2))
                 .endAngle((d, i) => (angleMap(i + 1)  + Math.PI/2))
                 )
