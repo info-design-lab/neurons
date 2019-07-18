@@ -8,14 +8,15 @@ var order_names = [
 
 var order_count = [0, 0, 0, 0, 0];
 var order_color = {
-    "Primata": "#d7191c",
-    "Glires": "#fdae61",
-    "Afrotheria": "#ffffbf",
-    "Artiodactyla": "#abd9e9",
-    "Eulipotyphla": "#2c7bb6",
+    "Primata": "#2c7bb6",
+    "Glires": "#d7191c",
+    "Afrotheria": "#fdae61",
+    "Artiodactyla": "#bcbddc",
+    "Eulipotyphla": "#7b3294",
 }
 
-var curr_index = 0; // index of current organism at focus
+
+var curr_index = 6; // index of current organism at focus
 var num_connections = 3;
 
 queue()
@@ -89,14 +90,9 @@ function makeChordVis(error, data){
                 .attr('r', screenScale(15))
                 .attr('id', (d, i) => "circle_" + i)
                 .style('fill', "#a8a8a8")
-                .style('stroke', (d, i) => ((i == curr_index) ? ("red") : "transparent"))
-                .style('stroke-weight', 2)
-                .on('click', function(d, i){
-                    d3.select("#circle_" + curr_index).style('stroke', 'transparent');
-                    curr_index = parseInt(this.id.split('_')[1]);
-                    d3.select("#circle_" + curr_index).style('stroke', 'red');
-                    transition_chord();
-                });
+                .style('stroke', (d, i) => ((i == curr_index) ? (order_color[d["Order"]]) : "transparent"))
+                .style('stroke-weight', 3)
+                .style('cursor', 'pointer');
 
     var chord_text = chord_organism.append('text')
                 .attr('text-anchor', function(d, i){
@@ -108,11 +104,11 @@ function makeChordVis(error, data){
                     } else if(!((i < a) && (i > b)) && (a > b)){
                         return "start";
                     }
-
                     return "end";
                 })
                 .attr('alignment-baseline', "middle")
                 .attr('transform', function(d, i){
+                    console.log(i);
                     const x = ((r + 40)*Math.cos(angleMap(i+ 0.5)));
                     const y = ((r + 40)*Math.sin(angleMap(i+ 0.5)));
                     var theta = (angleMap(i+ 0.5)*180/Math.PI) - 180;
@@ -128,7 +124,27 @@ function makeChordVis(error, data){
 
                     return 'translate(' + x + ', ' + y + ') rotate(' + theta + ')';
                 })
+                .style('cursor', 'pointer')
+                .attr('font-weight', (d, i) => ((i == curr_index) ? 'bold' : 'normal'))
+                .attr('font-size', (d, i) => ((i == curr_index) ? 20 : 15))
                 .text((d, i) => data[i]["Common Name"]);
+
+    chord_organism.append("path")
+        .attr('d', d3.arc()
+                .innerRadius(r)
+                .outerRadius(r + 200)
+                .startAngle((d, i) => (angleMap(i)  + Math.PI/2))
+                .endAngle((d, i) => (angleMap(i + 1)  + Math.PI/2))
+                )
+        .attr('id', (d, i) => ("#overlay_" + i))
+        .style('fill', 'transparent')
+        .style('cursor', 'pointer')
+        .on('click', function(d, i){
+            d3.select("#circle_" + curr_index).style('stroke', 'transparent');
+                curr_index = parseInt(this.id.split('_')[1]);
+                d3.select("#circle_" + curr_index).style('stroke', order_color[d["Order"]]);
+                transition_chord();
+        });
 
     var line = d3.line()
                 .curve(d3.curveBundle)
@@ -168,6 +184,8 @@ function makeChordVis(error, data){
             .transition()
             .delay(1000)
             .duration(0)
+            .attr('font-weight', (d, i) => ((i == curr_index) ? 'bold' : 'normal'))
+            .attr('font-size', (d, i) => ((i == curr_index) ? 20 : 15))
             .attr('text-anchor', function(d, i){
                     const a = (curr_index + 10)%40;
                     const b = (curr_index + 30)%40;
@@ -306,8 +324,6 @@ function makeChordVis(error, data){
             .attr('y', 150)
             .attr('text-anchor', 'middle')
             .text('Neurons Cortex/Total Neurons');
-
-
     }
 
     function groupOrders(data){
@@ -324,6 +340,32 @@ function makeChordVis(error, data){
             else if(data[i]["Order"] == order_names[3]){group4.push(data[i]); order_count[3]++;}
             else if(data[i]["Order"] == order_names[4]){group5.push(data[i]); order_count[4]++;}
         }
+
+        group1.sort(function(a, b){
+            if(a["Common Name"] < b["Common Name"]) return -1;
+            if(a["Common Name"] > b["Common Name"]) return 1;
+            return 0;
+        });
+        group2.sort(function(a, b){
+            if(a["Common Name"] < b["Common Name"]) return -1;
+            if(a["Common Name"] > b["Common Name"]) return 1;
+            return 0;
+        });
+        group3.sort(function(a, b){
+            if(a["Common Name"] < b["Common Name"]) return -1;
+            if(a["Common Name"] > b["Common Name"]) return 1;
+            return 0;
+        });
+        group4.sort(function(a, b){
+            if(a["Common Name"] < b["Common Name"]) return -1;
+            if(a["Common Name"] > b["Common Name"]) return 1;
+            return 0;
+        });
+        group5.sort(function(a, b){
+            if(a["Common Name"] < b["Common Name"]) return -1;
+            if(a["Common Name"] > b["Common Name"]) return 1;
+            return 0;
+        });
 
         group1 = group1.concat(group2);
         group1 = group1.concat(group3);
