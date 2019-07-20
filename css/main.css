@@ -6,9 +6,37 @@
 body, html{
   font-family: 'Roboto Condensed', sans-serif;
   margin: 0;
-  padding: 0;
+  padding: 10px;
   overflow-x: hidden;
 }
+
+.column1 {
+  float: left;
+  width: 80%;
+}
+
+.column2 {
+  float: left;
+  width: 20%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.cover{
+  width: 1200px;
+  margin: 0 auto;
+}
+
+@media screen and (max-width: 1200px) {
+      .cover {
+         width: 100%;
+      }
+   }
 
 .d3-tip {
   line-height: 1;
