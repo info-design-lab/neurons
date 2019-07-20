@@ -114,6 +114,7 @@ function makeChordVis(error, data){
                     return "end";
                 })
                 .attr('alignment-baseline', "middle")
+                .attr('dominant-baseline', "middle")
                 .attr('transform', function(d, i){
                     const x = ((r + 40)*Math.cos(angleMap(i+ 0.5)));
                     const y = ((r + 40)*Math.sin(angleMap(i+ 0.5)));
@@ -214,6 +215,7 @@ function makeChordVis(error, data){
             .attr('y', i*50 + 100 + 3)
             .attr('text-anchor', 'end')
             .attr('alignment-baseline', 'hanging')
+            .attr('dominant-baseline', 'hanging')
             .text(d[1]);
 
         rank_svg.append('line')
@@ -263,6 +265,7 @@ function makeChordVis(error, data){
     var rank_text = rank_organism.append('text')
         .attr('transform', (d, i) => 'translate(' + rank_vis_types[0][2](rank_data[i]) + ',' + 90 + ') rotate(' + -45 + ')')
         .attr('alignment-baseline', 'middle')
+        .attr('dominant-baseline', 'middle')
         .text((d, i) => d["Common Name"])
 
     // Rank vis connecting line
@@ -436,6 +439,7 @@ function makeChordVis(error, data){
                 .attr('x', 60)
                 .attr('y', i*20 + 40)
                 .attr('alignment-baseline', 'middle')
+                .attr('dominant-baseline', 'middle')
                 .text(function(){
                     if(d == 38) return 'farthest' ;
                     return (d + 1) + 'st closest'
@@ -458,6 +462,7 @@ function makeChordVis(error, data){
                 .attr('x', 60)
                 .attr('y', i*20 + 30 + 150)
                 .attr('alignment-baseline', 'middle')
+                .attr('dominant-baseline', 'middle')
                 .text(function(){
                     if(d == 38) return 'farthest' ;
                     return (d + 1) + 'st closest'
