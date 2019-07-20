@@ -270,6 +270,18 @@ function makeChordVis(error, data){
         .attr('dominant-baseline', 'middle')
         .attr('font-size', font_size)
         .text((d, i) => d["Common Name"])
+        .attr('cursor', 'pointer')
+        .on('mouseover', function(d, i){
+            hover_index = i;
+            hightlightHoverElements()
+            updateRankLine();
+        })
+        .on('click', function(d, i){
+            d3.select("#circle_" + curr_index).style('stroke', 'transparent');
+            curr_index = i;
+            d3.select("#circle_" + curr_index).style('stroke', order_color[d["Order"]]);
+            transition_chord();
+        })
 
     // Rank vis connecting line
     var connecting_line = rank_svg.append('path')
