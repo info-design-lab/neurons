@@ -22,9 +22,11 @@ var rank_vis_types = [
     //num, denom, scale
     ["Neurons Cortex", "Neurons Whole Brain", null, null],
     ["Neurons Cerebellum", "Neurons Whole Brain", null, null],
-    ["Neurons (Rest of Brain)", "Non Neurons (Rest of Brain)", null, null],
+    ["Neurons Rest of Brain", "Non-Neurons Rest of Brain", null, null],
     ["Brain Mass", "Body Mass", null, null],
-]
+];
+
+const font_size = 13;
 
 queue()
     .defer(d3.csv, 'data/data.csv')
@@ -40,10 +42,10 @@ function makeChordVis(error, data){
         d["Brain Mass"] = parseInt(d["Brain Mass"].replace(",", " "));
         d["Neurons Cortex"] = parseInt(d["Neurons Cortex"].replace(",", " "));
         d["Neurons Cerebellum"] = parseInt(d["Neurons Cerebellum"].replace(",", " "));
-        d["Neurons (Rest of Brain)"] = parseInt(d["Neurons (Rest of Brain)"].replace(",", " "));
+        d["Neurons Rest of Brain"] = parseInt(d["Neurons Rest of Brain"].replace(",", " "));
         d["Non Neurons Cortex"] = parseInt(d["Non Neurons Cortex"].replace(",", " "));
         d["Non Neurons Cerebellum"] = parseInt(d["Non Neurons Cerebellum"].replace(",", " "));
-        d["Non Neurons (Rest of Brain)"] = parseInt(d["Non Neurons (Rest of Brain)"].replace(",", " "));
+        d["Non-Neurons Rest of Brain"] = parseInt(d["Non-Neurons Rest of Brain"].replace(",", " "));
         d["Neurons Whole Brain"] = parseInt(d["Neurons Whole Brain"].replace(",", " "));
         d["Non Neurons Whole Brain"] = parseInt(d["Non Neurons Whole Brain"].replace(",", " "));
 
@@ -54,33 +56,27 @@ function makeChordVis(error, data){
 
     // sort the orgranisms based on the "order"
     data = groupOrders(data);
-
-    var screenScale = d3.scaleLinear().domain([0, 2560]).range([0, document.body.clientWidth]);
+    const chord_div_width = document.getElementById("chord-diagram").offsetWidth;
+    const screenScale = d3.scaleLinear().domain([0, 2560]).range([0, chord_div_width]);
+    var offset = 0;
+    data.forEach(function(d, i){
+        const len = d["Common Name"].length*font_size*0.6;
+        if(len > offset) offset = len;
+    });
     const margin = {
-        top: screenScale(500),
-        bottom: screenScale(500),
-        left: 100,
-        right: 100
+        top: offset,
+        bottom: offset,
+        left: 0,
+        right: 0
     }
-    var width = document.body.clientWidth - margin.left - margin.right;
-    var height = width/4;
-    var r = height*0.6 - screenScale(100);
-    var rank_vis_height = 100*rank_vis_types.length
+    const width = chord_div_width - margin.left - margin.right;
+    const height = width/6;
+    const r = height*0.6;
 
     var svg = d3.select('#chord-diagram')
                 .append('svg')
                 .attr('width', width + margin.left + margin.right)
-                .attr('height', height + margin.top + margin.bottom + rank_vis_height);
-
-    var rank_svg = svg.append('g')
-        .attr('transform', 'translate(' + margin.left + ', ' + (margin.top + height + margin.bottom) + ')')
-
-    svg.append('text')
-        .attr('text-anchor', 'middle')
-        .attr('x', width/2)
-        .attr('y', 50)
-        .attr('font-size', 40)
-        .text("Which species is similar to other species")
+                .attr('height', height + margin.top + margin.bottom);
 
     var angleMap = d3.scaleLinear().domain([0, 40]).range([
         0, 
@@ -136,13 +132,13 @@ function makeChordVis(error, data){
                 })
                 .style('cursor', 'pointer')
                 .attr('font-weight', (d, i) => ((i == curr_index) ? 'bold' : 'normal'))
-                .attr('font-size', (d, i) => ((i == curr_index) ? 20 : 15))
+                .attr('font-size', (d, i) => ((i == curr_index) ? font_size + 3 : font_size))
                 .text((d, i) => data[i]["Common Name"]);
 
     chord_organism.append("path")
         .attr('d', d3.arc()
                 .innerRadius(r)
-                .outerRadius(r + screenScale(400))
+                .outerRadius(r + offset)
                 .startAngle((d, i) => (angleMap(i)  + Math.PI/2))
                 .endAngle((d, i) => (angleMap(i + 1)  + Math.PI/2))
                 )
@@ -182,6 +178,21 @@ function makeChordVis(error, data){
         offset += order_count[i];
     }
 
+    const rank_vis_height = 70*rank_vis_types.length;
+    const rank_margin = {
+        left: 200,
+        right: 100,
+        top: 45,
+        bottom: 0
+    }
+    const rank_vis_width = document.getElementById("rank-diagram").offsetWidth - rank_margin.left - rank_margin.right;
+    var rank_svg = d3.select('#rank-diagram')
+                .append('svg')
+                .attr('width', rank_vis_width + rank_margin.left + rank_margin.right)
+                .attr('height', rank_vis_height + rank_margin.top + rank_margin.bottom)
+                .append('g')
+                .attr('transform', 'translate(' + rank_margin.left + ', ' + rank_margin.top + ')')
+
     // Create rank vis
     var connecting_line_data = []; // data for line connecting the ranks
     var rank_organism = rank_svg.selectAll('circle')
@@ -190,7 +201,7 @@ function makeChordVis(error, data){
 
     rank_vis_types.forEach(function(d, i){
         var rank_data = getChordData(d[0], d[1], true);
-        d[2] = d3.scaleLinear().domain([d3.min(rank_data), d3.max(rank_data)]).range([0, width]);
+        d[2] = d3.scaleLinear().domain([d3.min(rank_data), d3.max(rank_data)]).range([0, rank_vis_width]);
 
         rank_svg.append('text')
             .attr('x', -10)
@@ -214,7 +225,7 @@ function makeChordVis(error, data){
 
         rank_svg.append('line')
             .attr('x1', 0)
-            .attr('x2', width)
+            .attr('x2', rank_vis_width)
             .attr('y1', i*50 + 100)
             .attr('y2', i*50 + 100)
             .attr('stroke-width', 1)
@@ -262,9 +273,9 @@ function makeChordVis(error, data){
                 .x(function (d) { return d[0]; })
                 .y(function (d) { return d[1]; }))
         .attr('fill', 'none')
-        .attr('stroke', '#3f3f3f')
+        .attr('stroke', '#e7298a')
         .attr('stroke-width', 1)
-        .attr('opacity', 0.5)
+        .attr('opacity', 1)
 
     function transition_chord(){
         g.transition().duration(2000)
@@ -283,7 +294,7 @@ function makeChordVis(error, data){
             .delay(1000)
             .duration(0)
             .attr('font-weight', (d, i) => ((i == curr_index) ? 'bold' : 'normal'))
-            .attr('font-size', (d, i) => ((i == curr_index) ? 20 : 15))
+            .attr('font-size', (d, i) => ((i == curr_index) ? font_size + 3 : font_size))
             .attr('text-anchor', function(d, i){
                     const a = (curr_index + 10)%40;
                     const b = (curr_index + 30)%40;
@@ -317,7 +328,7 @@ function makeChordVis(error, data){
         connecting_line_data = [];
         rank_vis_types.forEach(function(d, i){
             var rank_data = getChordData(d[0], d[1], true);
-            d[2] = d3.scaleLinear().domain([d3.min(rank_data), d3.max(rank_data)]).range([0, width]);
+            d[2] = d3.scaleLinear().domain([d3.min(rank_data), d3.max(rank_data)]).range([0, rank_vis_width]);
 
             d[3].transition()
                 .duration(2000)
@@ -396,10 +407,11 @@ function makeChordVis(error, data){
     }
 
     function createLegend(){
-        var legend_width = 200;
-        var legend_height = 400;
-        var legend = svg.append('g')
-                        .attr('transform', 'translate(' + (width/2 + r + 300) + ', ' + Math.max(0, height/2 + margin.top -  legend_height/2) + ')');
+        var legend_width = document.getElementById("chord-legend").offsetWidth;
+        var legend_height = 300;
+        var legend = d3.select('#chord-legend').append('svg')
+                        .attr('width', legend_width)
+                        .attr('height', legend_height)
 
         legend.append('text')
             .attr('x', legend_width*0.5)
@@ -550,7 +562,7 @@ function makeChordVis(error, data){
 
         rank_vis_types.forEach(function(d, i){
             var rank_data = getChordData(d[0], d[1], true);
-            d[2] = d3.scaleLinear().domain([d3.min(rank_data), d3.max(rank_data)]).range([0, width]);
+            d[2] = d3.scaleLinear().domain([d3.min(rank_data), d3.max(rank_data)]).range([0, rank_vis_width]);
 
             for(j = -1; j < 2; j++){
                 if(i == 0 && j == -1) continue;
