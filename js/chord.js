@@ -154,6 +154,7 @@ function makeChordVis(error, data){
         })
         .on('mouseover', function(d, i){
             hover_index = i;
+            hightlightHoverElements();
             updateRankLine();
         });
 
@@ -244,6 +245,7 @@ function makeChordVis(error, data){
             .style('opacity', 1)
             .on('mouseover', function(d, i){
                 hover_index = i;
+                hightlightHoverElements()
                 updateRankLine();
             })
 
@@ -266,6 +268,7 @@ function makeChordVis(error, data){
         .attr('transform', (d, i) => 'translate(' + rank_vis_types[0][2](rank_data[i]) + ',' + 90 + ') rotate(' + -45 + ')')
         .attr('alignment-baseline', 'middle')
         .attr('dominant-baseline', 'middle')
+        .attr('font-size', font_size)
         .text((d, i) => d["Common Name"])
 
     // Rank vis connecting line
@@ -587,5 +590,15 @@ function makeChordVis(error, data){
                     .curve(d3.curveLinear)
                     .x(function (d) { return d[0]; })
                     .y(function (d) { return d[1]; }));
+    }
+
+    function hightlightHoverElements(){
+        rank_text
+            .attr('font-size', (d, i) => (hover_index == i) ? font_size + 3 : font_size)
+            .attr('font-weight', (d, i) => (hover_index == i) ? 'bold' : 'normal');
+
+        chord_text
+            .attr('font-size', (d, i) => (hover_index == i || i == curr_index) ? font_size + 3 : font_size)
+            .attr('font-weight', (d, i) => (hover_index == i || i == curr_index) ? 'bold' : 'normal');
     }
 }
