@@ -1,3 +1,12 @@
+var legend_combinations = {
+    '1': ["Brain Mass", "Body Mass"],
+    '2': ["Neurons Cortex", "Neurons Whole Brain"],
+    '3': ["Neurons Cerebellum", "Neurons Whole Brain"],
+    '4': ["Neurons Rest of the Brain", "Neurons Whole Brain"]
+}
+var first_ratio = legend_combinations[1];
+var second_ratio = legend_combinations[2];
+
 var order_names = [
     "Primata",
     "Glires",
@@ -16,7 +25,7 @@ var order_color = {
 }
 
 var curr_index = 6; // index of current organism at focus
-var hover_index = 10; // index of the organism which was hovered
+var hover_index = curr_index; // index of the organism which was hovered
 var num_connections = 3;
 var rank_vis_types = [
     //num, denom, scale
@@ -164,6 +173,14 @@ function makeChordVis(error, data){
                 .y(function (d) { return d[1]; });
 
     createChords();
+
+    var legend_width = document.getElementById("chord-legend").offsetWidth;
+    var legend_height = 300;
+    var legend_svg = d3.select('#chord-legend')
+                    .append('svg')
+                    .attr('width', legend_width)
+                    .attr('height', legend_height)
+
     createLegend();
 
     // Create the groupings in the circle
@@ -221,7 +238,7 @@ function makeChordVis(error, data){
 
         rank_svg.append('line')
             .attr('x1', -10)
-            .attr('x2', -100)
+            .attr('x2', -(Math.max(d[0].length, d[1].length))*0.55*font_size)
             .attr('y1', i*50 + 100)
             .attr('y2', i*50 + 100)
             .attr("stroke", 'grey')
@@ -269,6 +286,10 @@ function makeChordVis(error, data){
         .attr('alignment-baseline', 'middle')
         .attr('dominant-baseline', 'middle')
         .attr('font-size', font_size)
+        .style('opacity', (d, i) => (i == curr_index) ? 1 : 0.2)
+        .attr('font-size', (d, i) => (i == curr_index) ? font_size + 3 : font_size)
+        .style('opacity', (d, i) => (i == curr_index) ? 1 : 0.2)
+        .attr('font-weight', (d, i) => (i == curr_index) ? 'bold' : 'normal')
         .text((d, i) => d["Common Name"])
         .attr('cursor', 'pointer')
         .on('mouseover', function(d, i){
@@ -293,7 +314,27 @@ function makeChordVis(error, data){
         .attr('fill', 'none')
         .attr('stroke', '#e7298a')
         .attr('stroke-width', 1)
-        .attr('opacity', 1)
+        .attr('opacity', 1);
+
+
+    // Legend selection
+    var classname = document.getElementsByClassName("legend");
+    for (var i = 0; i < classname.length; i++) {
+        classname[i].addEventListener('click', function(){
+            if(first_ratio.length > 0 && second_ratio.length > 0) this.checked = false;
+            first_ratio = [];
+            second_ratio = [];
+            for(var i in classname){
+                if(first_ratio.length == 0 && classname[i].checked == true) first_ratio = legend_combinations[classname[i].value];
+                else if(second_ratio.length == 0 && classname[i].checked == true) second_ratio = legend_combinations[classname[i].value];
+            }
+
+            d3.selectAll('.connections').remove()
+            createChords();
+            createLegend();
+        }, false);
+    }
+
 
     function transition_chord(){
         g.transition().duration(2000)
@@ -380,115 +421,126 @@ function makeChordVis(error, data){
 
     function createChords(){
         // Create chord based on the ratios
-        var chord_data = getChordData('Brain Mass', 'Body Mass');
-        console.log(chord_data);
-        [chord_data.length - 1, 1, 2, 3].forEach(function(d, i){
-            g.append('path')
-                .datum([
-                    [(r)*Math.cos(angleMap(curr_index + 0.5)), (r)*Math.sin(angleMap(curr_index + 0.5))],
-                    [0, 0],
-                    [(r)*Math.cos(angleMap(chord_data[d][1] + 0.5)), (r)*Math.sin(angleMap(chord_data[d][1] + 0.5))]
-                    ])
-                .attr('d', line)
-                .style('fill', 'none')
-                .style('stroke', () => ((d == chord_data.length - 1) ? '#ef3b2c' : '#74a9cf'))
-                .style('stroke-width', function(){
-                    if(d == chord_data.length - 1) return 1;
-                    return 5 - d*2
-                })
-                .style('opacity', 0)
-                .attr('class', 'connections');
-        });
+        if(first_ratio.length > 0){
+            var chord_data = getChordData(first_ratio[0], first_ratio[1]);
+            [chord_data.length - 1, 1, 2, 3].forEach(function(d, i){
+                g.append('path')
+                    .datum([
+                        [(r)*Math.cos(angleMap(curr_index + 0.5)), (r)*Math.sin(angleMap(curr_index + 0.5))],
+                        [0, 0],
+                        [(r)*Math.cos(angleMap(chord_data[d][1] + 0.5)), (r)*Math.sin(angleMap(chord_data[d][1] + 0.5))]
+                        ])
+                    .attr('d', line)
+                    .style('fill', 'none')
+                    .style('stroke', () => ((d == chord_data.length - 1) ? '#ef3b2c' : '#74a9cf'))
+                    .style('stroke-width', function(){
+                        if(d == chord_data.length - 1) return 1;
+                        return 5 - d*2
+                    })
+                    .style('opacity', 0)
+                    .attr('class', 'connections');
+            });
+        }
 
-        var chord_data = getChordData('Neurons Cortex', 'Neurons Whole Brain');
-        [chord_data.length - 1, 1, 2, 3].forEach(function(d, i){
-            g.append('path')
-                .datum([
-                    [(r)*Math.cos(angleMap(curr_index + 0.5)), (r)*Math.sin(angleMap(curr_index + 0.5))],
-                    [0, 0],
-                    [(r)*Math.cos(angleMap(chord_data[d][1] + 0.5)), (r)*Math.sin(angleMap(chord_data[d][1] + 0.5))]
-                    ])
-                .attr('d', line)
-                .style('fill', 'none')
-                .style('stroke', () => ((d == chord_data.length - 1) ? '#ef3b2c' : '#74a9cf'))
-                .style('stroke-width', function(){
-                    if(d == chord_data.length - 1) return 1;
-                    return 5 - d*2
-                })
-                .style("stroke-dasharray", "8,4")
-                .style('opacity', 0)
-                .attr('class', 'connections');
-        });
+        if(second_ratio.length > 0){
+            var chord_data = getChordData(second_ratio[0], second_ratio[1]);
+            [chord_data.length - 1, 1, 2, 3].forEach(function(d, i){
+                g.append('path')
+                    .datum([
+                        [(r)*Math.cos(angleMap(curr_index + 0.5)), (r)*Math.sin(angleMap(curr_index + 0.5))],
+                        [0, 0],
+                        [(r)*Math.cos(angleMap(chord_data[d][1] + 0.5)), (r)*Math.sin(angleMap(chord_data[d][1] + 0.5))]
+                        ])
+                    .attr('d', line)
+                    .style('fill', 'none')
+                    .style('stroke', () => ((d == chord_data.length - 1) ? '#ef3b2c' : '#74a9cf'))
+                    .style('stroke-width', function(){
+                        if(d == chord_data.length - 1) return 1;
+                        return 5 - d*2
+                    })
+                    .style("stroke-dasharray", "8,4")
+                    .style('opacity', 0)
+                    .attr('class', 'connections');
+            });        
+        }
 
         d3.selectAll('.connections').transition().duration(1000)
-            .style('opacity', 1)
+            .style('opacity', 1);
     }
 
     function createLegend(){
-        var legend_width = document.getElementById("chord-legend").offsetWidth;
-        var legend_height = 300;
-        var legend = d3.select('#chord-legend').append('svg')
-                        .attr('width', legend_width)
-                        .attr('height', legend_height)
-
-        legend.append('text')
-            .attr('x', legend_width*0.5)
-            .attr('y', 20)
-            .attr('text-anchor', 'middle')
-            .text('Brain Mass/Body Mass');
+        d3.selectAll('.legend-lines').remove();
+        var legend = legend_svg.append('g')
+                    .attr('class', 'legend-lines');
 
         [0, 1, 2, 38].forEach(function(d, i){
-            legend.append('line')
-                .attr('x1', 0)
-                .attr('x2', 50)
-                .attr('y1', i*20 + 40)
-                .attr('y2', i*20 + 40)
-                .style('fill', 'none')
-                .style('stroke', () => ((d == 38) ? '#ef3b2c' : '#74a9cf'))
-                .style('stroke-width', function(){
-                    if(d == 38) return 1;
-                    return 5 - d*2
-                });
+            if(first_ratio.length > 0){
+                legend.append('line')
+                    .attr('x1', 0)
+                    .attr('x2', 50)
+                    .attr('y1', i*20 + 40)
+                    .attr('y2', i*20 + 40)
+                    .style('fill', 'none')
+                    .style('stroke', () => ((d == 38) ? '#ef3b2c' : '#74a9cf'))
+                    .style('stroke-width', function(){
+                        if(d == 38) return 1;
+                        return 5 - d*2
+                    });
 
-            legend.append('text')
-                .attr('x', 60)
-                .attr('y', i*20 + 40)
-                .attr('alignment-baseline', 'middle')
-                .attr('dominant-baseline', 'middle')
-                .text(function(){
-                    if(d == 38) return 'farthest' ;
-                    return (d + 1) + 'st closest'
-                });
+                legend.append('text')
+                    .attr('x', 60)
+                    .attr('y', i*20 + 40)
+                    .attr('alignment-baseline', 'middle')
+                    .attr('dominant-baseline', 'middle')
+                    .text(function(){
+                        if(d == 38) return 'farthest' ;
+                        return (d + 1) + 'st closest'
+                    });
+            }
 
-            legend.append('line')
-                .attr('x1', 0)
-                .attr('x2', 50)
-                .attr('y1', i*20 + 30 + 150)
-                .attr('y2', i*20 + 30 + 150)
-                .style('fill', 'none')
-                .style('stroke', () => ((d == 38) ? '#ef3b2c' : '#74a9cf'))
-                .style('stroke-width', function(){
-                    if(d == 38) return 1;
-                    return 5 - d*2
-                })
-                .style("stroke-dasharray", "8,4");
+            if(second_ratio.length > 0){
+                legend.append('line')
+                    .attr('x1', 0)
+                    .attr('x2', 50)
+                    .attr('y1', i*20 + 30 + 150)
+                    .attr('y2', i*20 + 30 + 150)
+                    .style('fill', 'none')
+                    .style('stroke', () => ((d == 38) ? '#ef3b2c' : '#74a9cf'))
+                    .style('stroke-width', function(){
+                        if(d == 38) return 1;
+                        return 5 - d*2
+                    })
+                    .style("stroke-dasharray", "8,4");
 
-            legend.append('text')
-                .attr('x', 60)
-                .attr('y', i*20 + 30 + 150)
-                .attr('alignment-baseline', 'middle')
-                .attr('dominant-baseline', 'middle')
-                .text(function(){
-                    if(d == 38) return 'farthest' ;
-                    return (d + 1) + 'st closest'
-                });
+                legend.append('text')
+                    .attr('x', 60)
+                    .attr('y', i*20 + 30 + 150)
+                    .attr('alignment-baseline', 'middle')
+                    .attr('dominant-baseline', 'middle')
+                    .text(function(){
+                        if(d == 38) return 'farthest' ;
+                        return (d + 1) + 'st closest'
+                });               
+            }
+
         });
 
-        legend.append('text')
-            .attr('x', legend_width*0.5)
-            .attr('y', 150)
-            .attr('text-anchor', 'middle')
-            .text('Neurons Cortex/Total Neurons');
+        if(first_ratio.length > 0){
+            legend.append('text')
+                .attr('x', legend_width*0.5)
+                .attr('y', 20)
+                .attr('text-anchor', 'middle')
+                .text(first_ratio[0] + ' / ' + first_ratio[1]);
+        }
+
+
+        if(second_ratio.length > 0){
+            legend.append('text')
+                .attr('x', legend_width*0.5)
+                .attr('y', 150)
+                .attr('text-anchor', 'middle')
+                .text(second_ratio[0] + ' / ' + second_ratio[1]);            
+        }
     }
 
     function groupOrders(data){
@@ -606,8 +658,9 @@ function makeChordVis(error, data){
 
     function hightlightHoverElements(){
         rank_text
-            .attr('font-size', (d, i) => (hover_index == i) ? font_size + 3 : font_size)
-            .attr('font-weight', (d, i) => (hover_index == i) ? 'bold' : 'normal');
+            .attr('font-size', (d, i) => (hover_index == i || i == curr_index) ? font_size + 3 : font_size)
+            .style('opacity', (d, i) => (hover_index == i || i == curr_index) ? 1 : 0.2)
+            .attr('font-weight', (d, i) => (hover_index == i || i == curr_index) ? 'bold' : 'normal');
 
         chord_text
             .attr('font-size', (d, i) => (hover_index == i || i == curr_index) ? font_size + 3 : font_size)
