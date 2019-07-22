@@ -325,8 +325,19 @@ function makeChordVis(error, data){
             first_ratio = [];
             second_ratio = [];
             for(var i in classname){
+                console.log(i)
                 if(first_ratio.length == 0 && classname[i].checked == true) first_ratio = legend_combinations[classname[i].value];
                 else if(second_ratio.length == 0 && classname[i].checked == true) second_ratio = legend_combinations[classname[i].value];
+            }
+
+            if(second_ratio.length == 0){
+                for(var i in classname){
+                    if(classname[i].parentElement) classname[i].parentElement.style.opacity = 1;
+                }
+            } else{
+                for(var i in classname){
+                    if(classname[i].parentElement) classname[i].parentElement.style.opacity = (classname[i].checked) ? 1 : 0.5;
+                }
             }
 
             d3.selectAll('.connections').remove()
@@ -492,6 +503,7 @@ function makeChordVis(error, data){
                     .attr('y', i*20 + 40)
                     .attr('alignment-baseline', 'middle')
                     .attr('dominant-baseline', 'middle')
+                    .attr('font-size', font_size)
                     .text(function(){
                         if(d == 38) return 'farthest' ;
                         return (d + 1) + 'st closest'
@@ -517,6 +529,7 @@ function makeChordVis(error, data){
                     .attr('y', i*20 + 30 + 150)
                     .attr('alignment-baseline', 'middle')
                     .attr('dominant-baseline', 'middle')
+                    .attr('font-size', font_size)
                     .text(function(){
                         if(d == 38) return 'farthest' ;
                         return (d + 1) + 'st closest'
@@ -527,18 +540,18 @@ function makeChordVis(error, data){
 
         if(first_ratio.length > 0){
             legend.append('text')
-                .attr('x', legend_width*0.5)
+                .attr('x', 0)
                 .attr('y', 20)
-                .attr('text-anchor', 'middle')
+                .attr('font-size', font_size + 2)
                 .text(first_ratio[0] + ' / ' + first_ratio[1]);
         }
 
 
         if(second_ratio.length > 0){
             legend.append('text')
-                .attr('x', legend_width*0.5)
+                .attr('x', 0)
                 .attr('y', 150)
-                .attr('text-anchor', 'middle')
+                .attr('font-size', font_size + 2)
                 .text(second_ratio[0] + ' / ' + second_ratio[1]);            
         }
     }
