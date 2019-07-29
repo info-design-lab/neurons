@@ -204,8 +204,8 @@ function makeChordVis(error, data){
         top: 45,
         bottom: 0
     }
-    const rank_vis_width = document.getElementById("rank-diagram").offsetWidth - rank_margin.left - rank_margin.right;
-    var rank_svg = d3.select('#rank-diagram')
+    const rank_vis_width = document.getElementById("linear-diagram").offsetWidth - rank_margin.left - rank_margin.right;
+    var rank_svg = d3.select('#linear-diagram')
                 .append('svg')
                 .attr('width', rank_vis_width + rank_margin.left + rank_margin.right)
                 .attr('height', rank_vis_height + rank_margin.top + rank_margin.bottom)
