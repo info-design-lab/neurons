@@ -47,16 +47,18 @@ function makeChordVis(error, data){
   	}
 
     data.forEach(function(d){
-        d["Body Mass"] = parseInt(d["Body Mass"].replace(",", " "));
-        d["Brain Mass"] = parseInt(d["Brain Mass"].replace(",", " "));
-        d["Neurons Cortex"] = parseInt(d["Neurons Cortex"].replace(",", " "));
-        d["Neurons Cerebellum"] = parseInt(d["Neurons Cerebellum"].replace(",", " "));
-        d["Neurons Rest of Brain"] = parseInt(d["Neurons Rest of Brain"].replace(",", " "));
-        d["Non Neurons Cortex"] = parseInt(d["Non Neurons Cortex"].replace(",", " "));
-        d["Non Neurons Cerebellum"] = parseInt(d["Non Neurons Cerebellum"].replace(",", " "));
-        d["Non-Neurons Rest of Brain"] = parseInt(d["Non-Neurons Rest of Brain"].replace(",", " "));
-        d["Neurons Whole Brain"] = parseInt(d["Neurons Whole Brain"].replace(",", " "));
-        d["Non Neurons Whole Brain"] = parseInt(d["Non Neurons Whole Brain"].replace(",", " "));
+        d["Body Mass"] = parseInt(d["Body Mass"].replaceAll(",", ""));
+        d["Brain Mass"] = parseInt(d["Brain Mass"].replaceAll(",", ""));
+        d["Neurons Cortex"] = parseInt(d["Neurons Cortex"].replaceAll(",", ""));
+        d["Neurons Cerebellum"] = parseInt(d["Neurons Cerebellum"].replaceAll(",", ""));
+        d["Neurons Rest of Brain"] = parseInt(d["Neurons Rest of Brain"].replaceAll(",", ""));
+        d["Non Neurons Cortex"] = parseInt(d["Non Neurons Cortex"].replaceAll(",", ""));
+        d["Non Neurons Cerebellum"] = parseInt(d["Non Neurons Cerebellum"].replaceAll(",", ""));
+        d["Non-Neurons Rest of Brain"] = parseInt(d["Non-Neurons Rest of Brain"].replaceAll(",", ""));
+        d["Neurons Whole Brain"] = parseInt(d["Neurons Whole Brain"].replaceAll(",", ""));
+        d["Non Neurons Whole Brain"] = parseInt(d["Non Neurons Whole Brain"].replaceAll(",", ""));
+        d["Total Neurons"] = parseInt(d["Total Neurons"].replaceAll(",", ""));
+        d["Total Non Neurons"] = parseInt(d["Total Non Neurons"].replaceAll(",", ""));
 
         d["Common Name"] = d["Common Name"].trim();
         d["Order"] = d["Order"].trim();
@@ -680,3 +682,11 @@ function makeChordVis(error, data){
             .attr('font-weight', (d, i) => (hover_index == i || i == curr_index) ? 'bold' : 'normal');
     }
 }
+
+
+
+
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, 'g'), replacement);
+};

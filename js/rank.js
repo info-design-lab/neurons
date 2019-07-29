@@ -2,6 +2,8 @@ var rank_types =[
     ["Body Mass", null, null],
     ["Brain Mass", null, null],
     ["Neurons Cortex", null, null],
+    ["Neurons Cerebellum", null, null],
+    ["Total Neurons", null, null],
 ];
 
 rank_hover_index = 0;
@@ -16,16 +18,18 @@ function makeRankVis(error, data){
     }
 
     data.forEach(function(d){
-        d["Body Mass"] = parseInt(d["Body Mass"].replace(",", " "));
-        d["Brain Mass"] = parseInt(d["Brain Mass"].replace(",", " "));
-        d["Neurons Cortex"] = parseInt(d["Neurons Cortex"].replace(",", " "));
-        d["Neurons Cerebellum"] = parseInt(d["Neurons Cerebellum"].replace(",", " "));
-        d["Neurons Rest of Brain"] = parseInt(d["Neurons Rest of Brain"].replace(",", " "));
-        d["Non Neurons Cortex"] = parseInt(d["Non Neurons Cortex"].replace(",", " "));
-        d["Non Neurons Cerebellum"] = parseInt(d["Non Neurons Cerebellum"].replace(",", " "));
-        d["Non-Neurons Rest of Brain"] = parseInt(d["Non-Neurons Rest of Brain"].replace(",", " "));
-        d["Neurons Whole Brain"] = parseInt(d["Neurons Whole Brain"].replace(",", " "));
-        d["Non Neurons Whole Brain"] = parseInt(d["Non Neurons Whole Brain"].replace(",", " "));
+        d["Body Mass"] = parseInt(d["Body Mass"].replaceAll(",", ""));
+        d["Brain Mass"] = parseInt(d["Brain Mass"].replaceAll(",", ""));
+        d["Neurons Cortex"] = parseInt(d["Neurons Cortex"].replaceAll(",", ""));
+        d["Neurons Cerebellum"] = parseInt(d["Neurons Cerebellum"].replaceAll(",", ""));
+        d["Neurons Rest of Brain"] = parseInt(d["Neurons Rest of Brain"].replaceAll(",", ""));
+        d["Non Neurons Cortex"] = parseInt(d["Non Neurons Cortex"].replaceAll(",", ""));
+        d["Non Neurons Cerebellum"] = parseInt(d["Non Neurons Cerebellum"].replaceAll(",", ""));
+        d["Non-Neurons Rest of Brain"] = parseInt(d["Non-Neurons Rest of Brain"].replaceAll(",", ""));
+        d["Neurons Whole Brain"] = parseInt(d["Neurons Whole Brain"].replaceAll(",", ""));
+        d["Non Neurons Whole Brain"] = parseInt(d["Non Neurons Whole Brain"].replaceAll(",", ""));
+        d["Total Neurons"] = parseInt(d["Total Neurons"].replaceAll(",", ""));
+        d["Total Non Neurons"] = parseInt(d["Total Non Neurons"].replaceAll(",", ""));
 
         d["Common Name"] = d["Common Name"].trim();
         d["Order"] = d["Order"].trim();
@@ -39,11 +43,13 @@ function makeRankVis(error, data){
         const len = d["Common Name"].length*font_size*0.6;
         if(len > offset) offset = len;
     });
+
+    console.log(data)
     const margin = {
-        top: offset/Math.sqrt(2),
+        top: offset/Math.sqrt(2) + 10,
         bottom: 20,
         left: 120,
-        right: 50
+        right: 80
     }
     const width = rank_div_width - margin.left - margin.right;
     const height = margin.top + 50*rank_types.length;
@@ -80,16 +86,19 @@ function makeRankVis(error, data){
             .attr('text-anchor', 'end')
             .attr('dominant-baseline', 'middle')
             .attr('alignment-baseline', 'middle')
+            .attr('font-size', 12)
             .text(d[0])
 
         d[1] = d3.scaleLinear().domain([0, 39]).range([0, width]);
         d[2] = getRankData(d[0]);
 
-        organism.append('circle')
-            .attr('cy', vertical_offset)
-            .attr('cx', (_, e) => d[1](d[2][e]))
-            .attr('fill', (_, e) => order_color[_["Order"]])
-            .attr('r', 4)
+        organism.append('line')
+            .attr('y1', vertical_offset - 4)
+            .attr('y2', vertical_offset + 4)
+            .attr('x1', (_, e) => d[1](d[2][e]))
+            .attr('x2', (_, e) => d[1](d[2][e]))
+            .attr('stroke', (_, e) => order_color[_["Order"]])
+            .style('stroke-width', 2)
             .on('mouseover', function(d, i){rank_hover_index = i; updateHover()});
 
         // connecting line data
@@ -107,7 +116,7 @@ function makeRankVis(error, data){
             .attr('dominant-baseline', 'middle')
             .attr('alignment-baseline', 'middle')
             .attr('transform', (_, e) => "translate(" + (rank_types[0][1](rank_types[0][2][e])) + ", -5) rotate(-45)")
-            .text((d) => d["Common Name"])
+            .text((d, index) => (rank_types[0][2][index] + 1) + ". " + d["Common Name"])
             .attr('font-weight', (d, i) => (i == rank_hover_index) ? "bold" : "normal")
             .attr('font-size', (d, i) => (i == rank_hover_index) ? "15px" : "13px")
             .style('cursor', 'pointer')
@@ -153,7 +162,6 @@ function makeRankVis(error, data){
         rank_text.transition().duration(100)
             .attr('font-weight', (d, i) => (i == rank_hover_index) ? "bold" : "normal")
             .attr('font-size', (d, i) => (i == rank_hover_index) ? "15px" : "13px")
-
     }
 
     function getRankData(field){
@@ -163,7 +171,7 @@ function makeRankVis(error, data){
         });
 
         dummy.sort(function(a, b){
-            return a[0] - b[0];
+            return -(a[0] - b[0]);
         });
 
         var ranks = {};
