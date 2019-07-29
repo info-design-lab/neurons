@@ -1,7 +1,7 @@
 var rank_types =[
     ["Body Mass", null, null],
     ["Brain Mass", null, null],
-    ["Brain Mass", null, null],
+    ["Neurons Cortex", null, null],
 ];
 
 rank_hover_index = 0;
@@ -42,7 +42,7 @@ function makeRankVis(error, data){
     const margin = {
         top: offset/Math.sqrt(2),
         bottom: 20,
-        left: 100,
+        left: 120,
         right: 50
     }
     const width = rank_div_width - margin.left - margin.right;
