@@ -17,11 +17,11 @@ var order_names = [
 
 var order_count = [0, 0, 0, 0, 0];
 var order_color = {
-    "Primata": "#2c7bb6",
-    "Glires": "#d7191c",
-    "Afrotheria": "#fdae61",
-    "Artiodactyla": "#bcbddc",
-    "Eulipotyphla": "#7b3294",
+    "Primata": "#39746D",
+    "Glires": "#40113A",
+    "Afrotheria": "#A72A4E",
+    "Artiodactyla": "#D2802E",
+    "Eulipotyphla": "#8A9530",
 }
 
 var curr_index = 6; // index of current organism at focus
