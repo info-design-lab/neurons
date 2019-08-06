@@ -30,22 +30,22 @@ function scrollHandler() {
 		if(document.getElementById('sec1-1').getBoundingClientRect().top - window.innerHeight/2 < 0 &&
 			document.getElementById('sec1-1').getBoundingClientRect().top + document.getElementById('sec1-1').getBoundingClientRect().height > 0
 			){
-			if(curr_index !== 0){
-				curr_index = 0;
+			if(curr_index !== 26){
+				curr_index = 26;
 				updateRankHover();
 			}
 		} else if(document.getElementById('sec1-2').getBoundingClientRect().top - window.innerHeight/2 < 0 &&
 			document.getElementById('sec1-2').getBoundingClientRect().top + document.getElementById('sec1-2').getBoundingClientRect().height > 0
 			){
-			if(curr_index !== 24){
-				curr_index = 24;
+			if(curr_index !== 15){
+				curr_index = 15;
 				updateRankHover();
 			}
 		} else if(document.getElementById('sec1-3').getBoundingClientRect().top - window.innerHeight/2 < 0 &&
 			document.getElementById('sec1-3').getBoundingClientRect().top + document.getElementById('sec1-3').getBoundingClientRect().height > 0
 			){
-			if(curr_index !== 1){
-				curr_index = 1;
+			if(curr_index !== 6){
+				curr_index = 6;
 				updateRankHover();
 			}
 		}
@@ -69,22 +69,22 @@ function scrollHandler() {
 		if(document.getElementById('sec2-1').getBoundingClientRect().top - window.innerHeight/2 < 0 &&
 			document.getElementById('sec2-1').getBoundingClientRect().top + document.getElementById('sec2-1').getBoundingClientRect().height > 0
 			){
-			if(curr_index !== 0){
-				curr_index = 0;
+			if(curr_index !== 26){
+				curr_index = 26;
 				transition_chord();
 			}
 		} else if(document.getElementById('sec2-2').getBoundingClientRect().top - window.innerHeight/2 < 0 &&
 			document.getElementById('sec2-2').getBoundingClientRect().top + document.getElementById('sec2-2').getBoundingClientRect().height > 0
 			){
-			if(curr_index !== 24){
-				curr_index = 24;
+			if(curr_index !== 15){
+				curr_index = 15;
 				transition_chord();
 			}
 		} else if(document.getElementById('sec2-3').getBoundingClientRect().top - window.innerHeight/2 < 0 &&
 			document.getElementById('sec2-3').getBoundingClientRect().top + document.getElementById('sec2-3').getBoundingClientRect().height > 0
 			){
-			if(curr_index !== 1){
-				curr_index = 1;
+			if(curr_index !== 6){
+				curr_index = 6;
 				transition_chord();
 			}
 		}

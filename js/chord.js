@@ -11,6 +11,7 @@ var chord_text;
 var data;
 var linear_vis_width;
 var connecting_line;
+var linear_rank_text;
 var line = d3.line()
             .curve(d3.curveBundle)
             .x(function (d) { return d[0]; })
@@ -143,6 +144,7 @@ function makeChordVis(error, _data){
             transition_chord();
         })
         .on('mouseover', function(d, i){
+            console.log(i)
             hover_index = i;
             hightlightHoverElements();
             updateRankLine();
@@ -259,7 +261,7 @@ function makeChordVis(error, _data){
 
     // Rank vis text
     var rank_data = getChordData(chord_vis_types[0][0], chord_vis_types[0][1], true);
-    var rank_text = rank_organism.append('text')
+    linear_rank_text = rank_organism.append('text')
         .attr('transform', (d, i) => 'translate(' + chord_vis_types[0][2](rank_data[i]) + ',' + 90 + ') rotate(' + -45 + ')')
         .attr('alignment-baseline', 'middle')
         .attr('dominant-baseline', 'middle')
@@ -323,6 +325,8 @@ function makeChordVis(error, _data){
             createLegend();
         }, false);
     }
+
+    makeRankVis(data);
 
     function createLegend(){
         d3.selectAll('.legend-lines').remove();
@@ -488,7 +492,7 @@ function makeChordVis(error, _data){
     }
 
     function hightlightHoverElements(){
-        rank_text
+        linear_rank_text
             .attr('font-size', (d, i) => (hover_index == i || i == curr_index) ? font_size + 3 : font_size)
             .style('opacity', (d, i) => (hover_index == i || i == curr_index) ? 1 : 0.2)
             .attr('font-weight', (d, i) => (hover_index == i || i == curr_index) ? 'bold' : 'normal');
@@ -570,7 +574,7 @@ function transition_chord(){
     });
 
     var rank_data = getChordData(chord_vis_types[0][0], chord_vis_types[0][1], true);
-    rank_text.transition()
+    linear_rank_text.transition()
         .duration(2000)
         .attr('transform', (d, i) => 'translate(' + chord_vis_types[0][2](rank_data[i]) + ',' + 90 + ') rotate(' + -45 + ')');
 

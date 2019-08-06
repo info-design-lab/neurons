@@ -47,34 +47,7 @@ const font_size = 13;
 
 var rank_connecting_line, rank_text;
 
-queue()
-    .defer(d3.csv, 'data/data.csv')
-    .await(makeRankVis);
-
-function makeRankVis(error, data){
-    if(error){
-        console.log(error);
-    }
-
-    data.forEach(function(d){
-        d["Body Mass"] = parseInt(d["Body Mass"].replaceAll(",", ""));
-        d["Brain Mass"] = parseInt(d["Brain Mass"].replaceAll(",", ""));
-        d["Neurons Cortex"] = parseInt(d["Neurons Cortex"].replaceAll(",", ""));
-        d["Neurons Cerebellum"] = parseInt(d["Neurons Cerebellum"].replaceAll(",", ""));
-        d["Neurons Rest of Brain"] = parseInt(d["Neurons Rest of Brain"].replaceAll(",", ""));
-        d["Non Neurons Cortex"] = parseInt(d["Non Neurons Cortex"].replaceAll(",", ""));
-        d["Non Neurons Cerebellum"] = parseInt(d["Non Neurons Cerebellum"].replaceAll(",", ""));
-        d["Non-Neurons Rest of Brain"] = parseInt(d["Non-Neurons Rest of Brain"].replaceAll(",", ""));
-        d["Neurons Whole Brain"] = parseInt(d["Neurons Whole Brain"].replaceAll(",", ""));
-        d["Non Neurons Whole Brain"] = parseInt(d["Non Neurons Whole Brain"].replaceAll(",", ""));
-        d["Total Neurons"] = parseInt(d["Total Neurons"].replaceAll(",", ""));
-        d["Total Non Neurons"] = parseInt(d["Total Non Neurons"].replaceAll(",", ""));
-
-        d["Common Name"] = d["Common Name"].trim();
-        d["Order"] = d["Order"].trim();
-        d["Species"] = d["Species"].trim();
-    });
-
+function makeRankVis(data){
     const rank_div_width = window.innerWidth;
     const screenScale = d3.scaleLinear().domain([0, 2560]).range([0, rank_div_width]);
     var offset = 0;
