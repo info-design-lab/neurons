@@ -1,22 +1,3 @@
-var chord_svg_group;
-
-var offset;
-var screenScale = d3.scaleLinear().domain([0, 2560]).range([0, window.innerWidth]);
-var margin;
-var chord_width
-var chord_height
-var r;
-var angleMap;
-var chord_text;
-var data;
-var linear_vis_width;
-var connecting_line;
-var linear_rank_text;
-var line = d3.line()
-            .curve(d3.curveBundle)
-            .x(function (d) { return d[0]; })
-            .y(function (d) { return d[1]; });
-
 queue()
     .defer(d3.csv, 'data/data.csv')
     .await(makeChordVis);
@@ -60,7 +41,7 @@ function makeChordVis(error, _data){
         left: 0,
         right: 0
     }
-    chord_width = window.innerWidth - margin.left - margin.right;
+    chord_width = visualization_width - margin.left - margin.right;
     chord_height = chord_width/6;
     r = chord_height*0.6;
 
@@ -153,7 +134,7 @@ function makeChordVis(error, _data){
 
     createChords();
 
-    var legend_width = window.innerWidth;
+    var legend_width = visualization_width;
     var legend_height = 300;
     var legend_svg = d3.select('#chord-legend')
                     .append('svg')
@@ -183,7 +164,7 @@ function makeChordVis(error, _data){
         top: 45,
         bottom: 0
     }
-    linear_vis_width = window.innerWidth - rank_margin.left - rank_margin.right;
+    linear_vis_width = visualization_width - rank_margin.left - rank_margin.right;
     var rank_svg = d3.select('#linear-diagram')
                 .append('svg')
                 .attr('width', linear_vis_width + rank_margin.left + rank_margin.right)
@@ -353,7 +334,8 @@ function makeChordVis(error, _data){
                     .attr('font-size', font_size)
                     .text(function(){
                         if(d == 38) return 'farthest' ;
-                        return (d + 1) + 'st closest'
+                        if(d + 1 == 1) return (d + 1) + 'st closest';
+                        return (d + 1) + 'nd closest';
                     });
             }
 
@@ -379,7 +361,8 @@ function makeChordVis(error, _data){
                     .attr('font-size', font_size)
                     .text(function(){
                         if(d == 38) return 'farthest' ;
-                        return (d + 1) + 'st closest'
+                        if(d + 1 == 1) return (d + 1) + 'st closest';
+                        return (d + 1) + 'nd closest';
                 });               
             }
 

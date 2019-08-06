@@ -44,11 +44,32 @@ var chord_vis_types = [
 ];
 
 const font_size = 13;
+const visualization_width = document.getElementById("visualization").offsetWidth;
+
+var chord_svg_group;
+
+var offset;
+var screenScale = d3.scaleLinear().domain([0, 2560]).range([0, visualization_width]);
+var margin;
+var chord_width
+var chord_height
+var r;
+var angleMap;
+var chord_text;
+var data;
+var linear_vis_width;
+var connecting_line;
+var linear_rank_text;
+var line = d3.line()
+            .curve(d3.curveBundle)
+            .x(function (d) { return d[0]; })
+            .y(function (d) { return d[1]; });
+
 
 var rank_connecting_line, rank_text;
 
 function makeRankVis(data){
-    const rank_div_width = window.innerWidth;
+    const rank_div_width = visualization_width;
     const screenScale = d3.scaleLinear().domain([0, 2560]).range([0, rank_div_width]);
     var offset = 0;
     data.forEach(function(d, i){
