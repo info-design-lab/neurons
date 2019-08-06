@@ -144,7 +144,6 @@ function makeChordVis(error, _data){
             transition_chord();
         })
         .on('mouseover', function(d, i){
-            console.log(i)
             hover_index = i;
             hightlightHoverElements();
             updateRankLine();
@@ -184,7 +183,7 @@ function makeChordVis(error, _data){
         top: 45,
         bottom: 0
     }
-    linear_vis_width = document.getElementById("linear-diagram").offsetWidth - rank_margin.left - rank_margin.right;
+    linear_vis_width = window.innerWidth - rank_margin.left - rank_margin.right;
     var rank_svg = d3.select('#linear-diagram')
                 .append('svg')
                 .attr('width', linear_vis_width + rank_margin.left + rank_margin.right)
@@ -305,7 +304,6 @@ function makeChordVis(error, _data){
             first_ratio = [];
             second_ratio = [];
             for(var i in classname){
-                console.log(i)
                 if(first_ratio.length == 0 && classname[i].checked == true) first_ratio = legend_combinations[classname[i].value];
                 else if(second_ratio.length == 0 && classname[i].checked == true) second_ratio = legend_combinations[classname[i].value];
             }
@@ -491,19 +489,19 @@ function makeChordVis(error, _data){
                     .y(function (d) { return d[1]; }));
     }
 
-    function hightlightHoverElements(){
-        linear_rank_text
-            .attr('font-size', (d, i) => (hover_index == i || i == curr_index) ? font_size + 3 : font_size)
-            .style('opacity', (d, i) => (hover_index == i || i == curr_index) ? 1 : 0.2)
-            .attr('font-weight', (d, i) => (hover_index == i || i == curr_index) ? 'bold' : 'normal');
 
-        chord_text
-            .attr('font-size', (d, i) => (hover_index == i || i == curr_index) ? font_size + 3 : font_size)
-            .attr('font-weight', (d, i) => (hover_index == i || i == curr_index) ? 'bold' : 'normal');
-    }
 }
 
+function hightlightHoverElements(){
+    linear_rank_text
+        .attr('font-size', (d, i) => (hover_index == i || i == curr_index) ? font_size + 3 : font_size)
+        .style('opacity', (d, i) => (hover_index == i || i == curr_index) ? 1 : 0.2)
+        .attr('font-weight', (d, i) => (hover_index == i || i == curr_index) ? 'bold' : 'normal');
 
+    chord_text
+        .attr('font-size', (d, i) => (hover_index == i || i == curr_index) ? font_size + 3 : font_size)
+        .attr('font-weight', (d, i) => (hover_index == i || i == curr_index) ? 'bold' : 'normal');
+}
 
 function transition_chord(){
     chord_svg_group.transition().duration(2000)

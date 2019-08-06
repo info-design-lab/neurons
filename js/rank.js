@@ -165,7 +165,7 @@ function makeRankVis(data){
     }
 }
 
-function updateRankHover(){
+function updateRankHover(duration=100){
     connecting_line_data = [];
      // connecting line data
     rank_types.forEach(function(d, i){
@@ -184,13 +184,13 @@ function updateRankHover(){
     rank_connecting_line
         .datum(connecting_line_data)
         .transition()
-        .duration(100)
+        .duration(duration)
         .attr('d', d3.line()
                 .curve(d3.curveLinear)
                 .x(function (d) { return d[0]; })
                 .y(function (d) { return d[1]; }));
 
-    rank_text.transition().duration(100)
+    rank_text.transition().duration(duration)
         .attr('font-weight', (d, i) => (i == curr_index) ? "bold" : "normal")
         .attr('font-size', (d, i) => (i == curr_index) ? "15px" : "13px")
 }

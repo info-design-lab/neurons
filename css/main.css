@@ -30,12 +30,13 @@ body, html{
 #visualization{
   position: fixed;
   width: 100%;
-  left: 0px;
-  top: 0px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 #rank-diagram{
-  display: none;
+
 }
 
 #chord-diagram{

@@ -17,13 +17,13 @@ function scrollHandler() {
 		if(section1.getBoundingClientRect().top < 0 &&
 			section1.getBoundingClientRect().top + section1.getBoundingClientRect().height > window.innerHeight
 			){
-			vis_div.style.top = 0;
+			vis_div.style.opacity = 1;
 		}
 		else if(section1.getBoundingClientRect().top + section1.getBoundingClientRect().height < window.innerHeight){
-			vis_div.style.top = section1.getBoundingClientRect().top + section1.getBoundingClientRect().height - window.innerHeight;
+			vis_div.style.opacity = (section1.getBoundingClientRect().top + section1.getBoundingClientRect().height)/window.innerHeight - 0.5;
 		}
 		else{
-			vis_div.style.top = section1.getBoundingClientRect().top;
+			vis_div.style.opacity = 1 - section1.getBoundingClientRect().top/window.innerHeight;
 		}
 
 
@@ -32,21 +32,21 @@ function scrollHandler() {
 			){
 			if(curr_index !== 26){
 				curr_index = 26;
-				updateRankHover();
+				updateRankHover(1000);
 			}
 		} else if(document.getElementById('sec1-2').getBoundingClientRect().top - window.innerHeight/2 < 0 &&
 			document.getElementById('sec1-2').getBoundingClientRect().top + document.getElementById('sec1-2').getBoundingClientRect().height > 0
 			){
 			if(curr_index !== 15){
 				curr_index = 15;
-				updateRankHover();
+				updateRankHover(1000);
 			}
 		} else if(document.getElementById('sec1-3').getBoundingClientRect().top - window.innerHeight/2 < 0 &&
 			document.getElementById('sec1-3').getBoundingClientRect().top + document.getElementById('sec1-3').getBoundingClientRect().height > 0
 			){
 			if(curr_index !== 6){
 				curr_index = 6;
-				updateRankHover();
+				updateRankHover(1000);
 			}
 		}
 	} else if(section2.getBoundingClientRect().top - window.innerHeight < 0 && 
@@ -56,13 +56,13 @@ function scrollHandler() {
 		if(section2.getBoundingClientRect().top < 0 &&
 			section2.getBoundingClientRect().top + section2.getBoundingClientRect().height > window.innerHeight
 			){
-			vis_div.style.top = 0;
+			vis_div.style.opacity = 1;
 		}
 		else if(section2.getBoundingClientRect().top + section2.getBoundingClientRect().height < window.innerHeight){
-			vis_div.style.top = section2.getBoundingClientRect().top + section2.getBoundingClientRect().height - window.innerHeight;
+			vis_div.style.opacity = (section2.getBoundingClientRect().top + section2.getBoundingClientRect().height)/window.innerHeight - 0.5;
 		}
 		else{
-			vis_div.style.top = section2.getBoundingClientRect().top;
+			vis_div.style.opacity = 1 - section2.getBoundingClientRect().top/window.innerHeight;
 		}
 
 
@@ -88,7 +88,50 @@ function scrollHandler() {
 				transition_chord();
 			}
 		}
+	} else if(section3.getBoundingClientRect().top - window.innerHeight < 0 && 
+		section3.getBoundingClientRect().top + section3.getBoundingClientRect().height > 0){
+		document.getElementById("linear-diagram").style.display = "inline";
+		if(section3.getBoundingClientRect().top < 0 &&
+			section3.getBoundingClientRect().top + section3.getBoundingClientRect().height > window.innerHeight
+			){
+			vis_div.style.opacity = 1;
+		}
+		else if(section3.getBoundingClientRect().top + section3.getBoundingClientRect().height < window.innerHeight){
+			vis_div.style.opacity = (section3.getBoundingClientRect().top + section3.getBoundingClientRect().height)/window.innerHeight - 0.5;
+		}
+		else{
+			vis_div.style.opacity = 1 - section3.getBoundingClientRect().top/window.innerHeight;
+		}
 
+
+		if(document.getElementById('sec3-1').getBoundingClientRect().top - window.innerHeight/2 < 0 &&
+			document.getElementById('sec3-1').getBoundingClientRect().top + document.getElementById('sec3-1').getBoundingClientRect().height > 0
+			){
+			if(curr_index !== 26){
+				curr_index = 26;
+				hover_index = curr_index;
+				hightlightHoverElements()
+				transition_chord();
+			}
+		} else if(document.getElementById('sec3-2').getBoundingClientRect().top - window.innerHeight/2 < 0 &&
+			document.getElementById('sec3-2').getBoundingClientRect().top + document.getElementById('sec3-2').getBoundingClientRect().height > 0
+			){
+			if(curr_index !== 15){
+				curr_index = 15;
+				hover_index = curr_index;
+				hightlightHoverElements()
+				transition_chord();
+			}
+		} else if(document.getElementById('sec3-3').getBoundingClientRect().top - window.innerHeight/2 < 0 &&
+			document.getElementById('sec3-3').getBoundingClientRect().top + document.getElementById('sec3-3').getBoundingClientRect().height > 0
+			){
+			if(curr_index !== 6){
+				curr_index = 6;
+				hover_index = curr_index;
+				hightlightHoverElements()
+				transition_chord();
+			}
+		}
 	}
 
 
