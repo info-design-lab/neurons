@@ -9,24 +9,96 @@
 	</head>
 	<body>
 		<div class="cover">
-			<h1>Which species is similar to other species</h1>
-			<div id="rank-diagram"></div>
-			<div class="row">
-				<div class="column1">
-					<div id="chord-diagram"></div>
-				</div>
-				<div class="column2">
-					<label><input class="legend" type="checkbox" name="vehicle" value="1" autocomplete="off" checked> Brain Mass / Body Mass</label><br>
-					<label><input class="legend" type="checkbox" name="vehicle" value="2" autocomplete="off" checked> Neurons Cortex / Neurons Whole Brain</label><br>
-					<label style="opacity: 0.5"><input class="legend" type="checkbox" name="vehicle" value="3" autocomplete="off"> Neurons Cerebellum / Neurons Whole Brain</label><br>
-					<label style="opacity: 0.5"><input class="legend" type="checkbox" name="vehicle" value="4" autocomplete="off"> Neurons Rest of the Brain / Neurons Whole Brain</label><br>
-					<br><br><br>
-					<div id="chord-legend"></div>
+			<div style="text-align: center; height: 100%; margin-top: 500px;">
+				<h1 style="font-size: 50px;">Which Species is Similar to Other Species</h1>
+				<p style="font-size: 30px">
+					This is a visulization about....
+					<br> 
+					blah ! blah! 
+					<br> 
+					blah ! blah! 
+					<br> 
+					blah ! blah! 
+				</p>
+			</div>
+			<div id="visualization">
+				<div id="rank-diagram"></div>
+				<div id="chord-diagram"></div>
+				<div id="chord-legend"></div>
+				<div id="linear-diagram"></div>
+			</div>
+			<div id="section1">
+				<div class="row">
+
+					<div class="column" style="width:30%">
+						<div class="block-text" id="sec1-1">
+							Elephant
+						</div>
+
+						<div class="block-text" id="sec1-2">
+							Dog
+						</div>
+
+						<div class="block-text" id="sec1-3">
+							Human
+						</div>
+					</div>
 				</div>
 			</div>
-			<div id="linear-diagram"></div>
+
+			<div style="text-align: center; height: 100%;">
+				<p style="font-size: 30px">
+					Chord
+				</p>
+			</div>
+
+			<div id="section2">
+				<div class="row">
+					<div class="column" style="width:30%">
+						<div class="block-text" id="sec2-1">
+							Elephant
+						</div>
+
+						<div class="block-text" id="sec2-2">
+							Dog
+						</div>
+
+						<div class="block-text" id="sec2-3">
+							Human
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div style="text-align: center; height: 100%;">
+				<p style="font-size: 30px">
+					Linear
+				</p>
+			</div>
+
+			<div id="section3">
+				<div class="row">
+					<div class="column" style="width:30%">
+						<div class="block-text" id="sec3-1">
+							Linear
+						</div>
+
+						<div class="block-text" id="sec3-2">
+							Linear
+						</div>
+
+						<div class="block-text" id="sec3-3">
+							Linear
+						</div>
+					</div>
+				</div>
+			</div>
+
+
 		</div>
+
 		<script src="js/chord.js">  </script>
 		<script src="js/rank.js">  </script>
+		<script src="js/scroll.js">  </script>
 	</body>
 </html>

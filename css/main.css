@@ -10,14 +10,8 @@ body, html{
   overflow-x: hidden;
 }
 
-.column1 {
+.column {
   float: left;
-  width: 80%;
-}
-
-.column2 {
-  float: left;
-  width: 20%;
 }
 
 /* Clear floats after the columns */
@@ -28,15 +22,40 @@ body, html{
 }
 
 .cover{
-  width: 1200px;
+  width: 100%;
   margin: 0 auto;
+  position: relative;
 }
 
-@media screen and (max-width: 1200px) {
-      .cover {
-         width: 100%;
-      }
-   }
+#visualization{
+  position: fixed;
+  width: 100%;
+  left: 0px;
+  top: 0px;
+}
+
+#rank-diagram{
+  display: none;
+}
+
+#chord-diagram{
+  display: none;
+}
+
+#chord-legend{
+  display: none;
+}
+
+#linear-diagram{
+  display: none;
+}
+
+.block-text{
+  background: #808080;
+  padding: 20px;
+  font-size: 35px;
+  margin-bottom: 100vh;
+}
 
 .d3-tip {
   line-height: 1;

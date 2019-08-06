@@ -6,7 +6,46 @@ var rank_types =[
     ["Total Neurons", null, null],
 ];
 
-rank_hover_index = 0;
+var legend_combinations = {
+    '1': ["Brain Mass", "Body Mass"],
+    '2': ["Neurons Cortex", "Neurons Whole Brain"],
+    '3': ["Neurons Cerebellum", "Neurons Whole Brain"],
+    '4': ["Neurons Rest of the Brain", "Neurons Whole Brain"]
+}
+var first_ratio = legend_combinations[1];
+var second_ratio = legend_combinations[2];
+
+var order_names = [
+    "Primata",
+    "Glires",
+    "Afrotheria",
+    "Artiodactyla",
+    "Eulipotyphla",
+];
+
+var order_count = [0, 0, 0, 0, 0];
+var order_color = {
+    "Primata": "#39746D",
+    "Glires": "#40113A",
+    "Afrotheria": "#A72A4E",
+    "Artiodactyla": "#D2802E",
+    "Eulipotyphla": "#8A9530",
+}
+
+var curr_index = 1; // index of current organism at focus
+var hover_index = curr_index; // index of the organism which was hovered
+var num_connections = 3;
+var chord_vis_types = [
+    //num, denom, scale
+    ["Neurons Cortex", "Neurons Whole Brain", null, null],
+    ["Neurons Cerebellum", "Neurons Whole Brain", null, null],
+    ["Neurons Rest of Brain", "Non-Neurons Rest of Brain", null, null],
+    ["Brain Mass", "Body Mass", null, null],
+];
+
+const font_size = 13;
+
+var rank_connecting_line, rank_text;
 
 queue()
     .defer(d3.csv, 'data/data.csv')
@@ -36,7 +75,7 @@ function makeRankVis(error, data){
         d["Species"] = d["Species"].trim();
     });
 
-    const rank_div_width = document.getElementById("rank-diagram").offsetWidth;
+    const rank_div_width = window.innerWidth;
     const screenScale = d3.scaleLinear().domain([0, 2560]).range([0, rank_div_width]);
     var offset = 0;
     data.forEach(function(d, i){
@@ -44,7 +83,6 @@ function makeRankVis(error, data){
         if(len > offset) offset = len;
     });
 
-    console.log(data)
     const margin = {
         top: offset/Math.sqrt(2) + 10,
         bottom: 20,
@@ -99,31 +137,31 @@ function makeRankVis(error, data){
             .attr('x2', (_, e) => d[1](d[2][e]))
             .attr('stroke', (_, e) => order_color[_["Order"]])
             .style('stroke-width', 2)
-            .on('mouseover', function(d, i){rank_hover_index = i; updateHover()});
+            .on('mouseover', function(d, i){curr_index = i; updateRankHover()});
 
         // connecting line data
         for(j = -1; j < 2; j++){
             if(i == 0 && j == -1) continue;
             if(i == rank_types.length - 1 && j == 1) continue;
             connecting_line_data.push([
-                    d[1](d[2][rank_hover_index]),
+                    d[1](d[2][curr_index]),
                     vertical_offset + j*20
                 ]); 
         }
     });
 
-    var rank_text = organism.append('text')
+    rank_text = organism.append('text')
             .attr('dominant-baseline', 'middle')
             .attr('alignment-baseline', 'middle')
             .attr('transform', (_, e) => "translate(" + (rank_types[0][1](rank_types[0][2][e])) + ", -5) rotate(-45)")
             .text((d, index) => (rank_types[0][2][index] + 1) + ". " + d["Common Name"])
-            .attr('font-weight', (d, i) => (i == rank_hover_index) ? "bold" : "normal")
-            .attr('font-size', (d, i) => (i == rank_hover_index) ? "15px" : "13px")
+            .attr('font-weight', (d, i) => (i == curr_index) ? "bold" : "normal")
+            .attr('font-size', (d, i) => (i == curr_index) ? "15px" : "13px")
             .style('cursor', 'pointer')
-            .on('mouseover', function(d, i){rank_hover_index = i; updateHover()});
+            .on('mouseover', function(d, i){curr_index = i; updateRankHover()});
 
     // Rank vis connecting line
-    var connecting_line = svg.append('path')
+    rank_connecting_line = svg.append('path')
         .datum(connecting_line_data)
         .attr('d', d3.line()
                 .curve(d3.curveLinear)
@@ -133,36 +171,6 @@ function makeRankVis(error, data){
         .attr('stroke', '#e7298a')
         .attr('stroke-width', 1)
         .attr('opacity', 1);
-
-    function updateHover(){
-        connecting_line_data = [];
-         // connecting line data
-        rank_types.forEach(function(d, i){
-            const vertical_offset = 5 + 40*i;
-            // connecting line data
-            for(j = -1; j < 2; j++){
-                if(i == 0 && j == -1) continue;
-                if(i == rank_types.length - 1 && j == 1) continue;
-                connecting_line_data.push([
-                        d[1](d[2][rank_hover_index]),
-                        vertical_offset + j*20
-                    ]); 
-            }
-        });
-
-        connecting_line
-            .datum(connecting_line_data)
-            .transition()
-            .duration(100)
-            .attr('d', d3.line()
-                    .curve(d3.curveLinear)
-                    .x(function (d) { return d[0]; })
-                    .y(function (d) { return d[1]; }));
-
-        rank_text.transition().duration(100)
-            .attr('font-weight', (d, i) => (i == rank_hover_index) ? "bold" : "normal")
-            .attr('font-size', (d, i) => (i == rank_hover_index) ? "15px" : "13px")
-    }
 
     function getRankData(field){
         var dummy = [];
@@ -182,4 +190,34 @@ function makeRankVis(error, data){
 
         return ranks;
     }
+}
+
+function updateRankHover(){
+    connecting_line_data = [];
+     // connecting line data
+    rank_types.forEach(function(d, i){
+        const vertical_offset = 5 + 40*i;
+        // connecting line data
+        for(j = -1; j < 2; j++){
+            if(i == 0 && j == -1) continue;
+            if(i == rank_types.length - 1 && j == 1) continue;
+            connecting_line_data.push([
+                    d[1](d[2][curr_index]),
+                    vertical_offset + j*20
+                ]); 
+        }
+    });
+
+    rank_connecting_line
+        .datum(connecting_line_data)
+        .transition()
+        .duration(100)
+        .attr('d', d3.line()
+                .curve(d3.curveLinear)
+                .x(function (d) { return d[0]; })
+                .y(function (d) { return d[1]; }));
+
+    rank_text.transition().duration(100)
+        .attr('font-weight', (d, i) => (i == curr_index) ? "bold" : "normal")
+        .attr('font-size', (d, i) => (i == curr_index) ? "15px" : "13px")
 }
