@@ -1,0 +1,157 @@
+@font-face {
+  font-family: Roboto Condensed;
+  src: url('fonts/RobotoCondensed-Regular.ttf');
+}
+
+body, html{
+  font-family: 'Roboto Condensed', sans-serif;
+  margin: 0;
+  padding: 10px;
+  overflow-x: hidden;
+}
+
+.heading-description{
+  font-size: 30px; 
+  max-width: 1000px; 
+  vertical-align: middle; 
+  margin: 0 auto;
+  text-align: justify;
+}
+
+.column {
+  float: left;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.cover{
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+}
+
+#visualization{
+  position: fixed;
+  width: 100%;
+  max-width: 1200px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  float: right;
+}
+
+#rank-diagram{
+  display: none;
+}
+
+#chord-diagram{
+  display: none;
+}
+
+#chord-legend{
+  display: none;
+}
+
+#linear-diagram{
+  display: none;
+}
+
+.block-text{
+  background: #808080;
+  padding: 20px;
+  font-size: 35px;
+  margin-bottom: 100vh;
+}
+
+.d3-tip {
+  line-height: 1;
+  padding: 15px;
+  background: #fff;
+  border-radius: 1px;
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+  opacity: 0.9;
+  position: absolute;
+  z-index: 10;
+  visibility: hidden;
+}
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -1px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 22.6px;
+  margin: 0;
+  margin-bottom: -4px;
+  padding: 0;
+}
+
+.switch input {display:none;}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #6a51a3;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 17.3px;
+  width: 17.3px;
+  left: 3.8px;
+  bottom: 2.6px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #e7298a;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #e7298a;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(17.3px);
+  -ms-transform: translateX(17.3px);
+  transform: translateX(17.3px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 25px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+
+.row{
+  overflow-y: hidden;
+}
+
+.line {
+  fill: none;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
