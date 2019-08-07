@@ -3,17 +3,18 @@ window.onscroll = function() {scrollHandler()};
 var section1 = document.getElementById('section1');
 var section2 = document.getElementById('section2');
 var section3 = document.getElementById('section3');
-var vis_div = document.getElementById('visualization')
+var vis_div = document.getElementById('visualization');
 function scrollHandler() {
-	document.getElementById("rank-diagram").style.display = "none";
-	document.getElementById("chord-diagram").style.display = "none";
-	document.getElementById("chord-legend").style.display = "none";
-	document.getElementById("linear-diagram").style.display = "none";
-
-	if(section1.getBoundingClientRect().top - window.innerHeight < 0 && 
+	if(section4.getBoundingClientRect().top - window.innerHeight < 0){
+		makeVisibile(["rank-diagram", "chord-diagram", "chord-legend", "linear-diagram", "chord-checkbox"]);
+		if(document.getElementById("visualization").style.position !== "relative"){
+			document.getElementById("visualization").style.position = "relative";
+		}
+		vis_div.style.opacity = 1;
+	} else if(section1.getBoundingClientRect().top - window.innerHeight < 0 && 
 		section1.getBoundingClientRect().top + section1.getBoundingClientRect().height > 0
 		){ // section 1
-		document.getElementById("rank-diagram").style.display = "inline";
+		makeVisibile(["rank-diagram"]);
 		if(section1.getBoundingClientRect().top < 0 &&
 			section1.getBoundingClientRect().top + section1.getBoundingClientRect().height > window.innerHeight
 			){
@@ -51,8 +52,7 @@ function scrollHandler() {
 		}
 	} else if(section2.getBoundingClientRect().top - window.innerHeight < 0 && 
 		section2.getBoundingClientRect().top + section2.getBoundingClientRect().height > 0){
-		document.getElementById("chord-diagram").style.display = "inline";
-		document.getElementById("chord-legend").style.display = "inline";
+		makeVisibile(["chord-diagram", "chord-legend"]);
 		if(section2.getBoundingClientRect().top < 0 &&
 			section2.getBoundingClientRect().top + section2.getBoundingClientRect().height > window.innerHeight
 			){
@@ -90,7 +90,10 @@ function scrollHandler() {
 		}
 	} else if(section3.getBoundingClientRect().top - window.innerHeight < 0 && 
 		section3.getBoundingClientRect().top + section3.getBoundingClientRect().height > 0){
-		document.getElementById("linear-diagram").style.display = "inline";
+		makeVisibile(["linear-diagram"]);
+		if(document.getElementById("visualization").style.position !== "fixed"){
+			document.getElementById("visualization").style.position = "fixed";
+		}
 		if(section3.getBoundingClientRect().top < 0 &&
 			section3.getBoundingClientRect().top + section3.getBoundingClientRect().height > window.innerHeight
 			){
@@ -132,7 +135,20 @@ function scrollHandler() {
 				transition_chord();
 			}
 		}
+	} 
+}
+
+function makeVisibile(elements){
+	var element_list = ["rank-diagram", "chord-diagram", "chord-legend", "linear-diagram", "chord-checkbox"];
+	for(var i in element_list){
+		if(elements.indexOf(element_list[i]) < 0){
+			if(document.getElementById(element_list[i]).style.display !== "none"){
+				document.getElementById(element_list[i]).style.display = "none";
+			}
+		} else{
+			if(document.getElementById(element_list[i]).style.display !== "inline"){
+				document.getElementById(element_list[i]).style.display = "inline";
+			}
+		}
 	}
-
-
 }
