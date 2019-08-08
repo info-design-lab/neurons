@@ -134,7 +134,7 @@ function makeChordVis(error, _data){
 
     createChords();
 
-    var legend_width = visualization_width;
+    var legend_width = 230;
     var legend_height = 300;
     var legend_svg = d3.select('#chord-legend')
                     .append('svg')
