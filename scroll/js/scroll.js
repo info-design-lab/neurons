@@ -6,7 +6,7 @@ var section3 = document.getElementById('section3');
 var vis_div = document.getElementById('visualization');
 function scrollHandler() {
 	if(section4.getBoundingClientRect().top - window.innerHeight < 0){
-		makeVisibile(["rank-diagram", "chord-diagram", "chord-legend", "linear-diagram", "chord-checkbox"]);
+		makeVisibile(["rank-diagram", "chord-diagram", "chord-legend", "chord-image", "linear-diagram", "chord-checkbox"]);
 		if(document.getElementById("visualization").style.position !== "relative"){
 			document.getElementById("visualization").style.position = "relative";
 		}
@@ -52,7 +52,7 @@ function scrollHandler() {
 		}
 	} else if(section2.getBoundingClientRect().top - window.innerHeight < 0 && 
 		section2.getBoundingClientRect().top + section2.getBoundingClientRect().height > 0){
-		makeVisibile(["chord-diagram", "chord-legend"]);
+		makeVisibile(["chord-diagram", "chord-legend", "chord-image"]);
 		if(section2.getBoundingClientRect().top < 0 &&
 			section2.getBoundingClientRect().top + section2.getBoundingClientRect().height > window.innerHeight
 			){
@@ -139,7 +139,7 @@ function scrollHandler() {
 }
 
 function makeVisibile(elements){
-	var element_list = ["rank-diagram", "chord-diagram", "chord-legend", "linear-diagram", "chord-checkbox"];
+	var element_list = ["rank-diagram", "chord-diagram", "chord-image", "chord-legend", "linear-diagram", "chord-checkbox"];
 	for(var i in element_list){
 		if(elements.indexOf(element_list[i]) < 0){
 			if(document.getElementById(element_list[i]).style.display !== "none"){

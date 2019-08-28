@@ -70,7 +70,6 @@ var rank_connecting_line, rank_text;
 
 function makeRankVis(data){
     const rank_div_width = visualization_width;
-    const screenScale = d3.scaleLinear().domain([0, 2560]).range([0, rank_div_width]);
     var offset = 0;
     data.forEach(function(d, i){
         const len = d["Common Name"].length*font_size*0.6;

@@ -41,7 +41,8 @@ function makeChordVis(error, _data){
         left: 0,
         right: 0
     }
-    chord_width = visualization_width - margin.left - margin.right;
+    chord_width = visualization_width*0.6 - margin.left - margin.right;
+    console.log(chord_width)
     chord_height = chord_width/6;
     r = chord_height*0.6;
 
@@ -57,7 +58,7 @@ function makeChordVis(error, _data){
     chord_svg_group = svg.append('g')
                 .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
                 .append('g')
-                .attr('transform', 'translate(' + chord_width/2 + ',' + chord_height/2 +') rotate(' + (-angleMap(curr_index + 0.5)*180/Math.PI - 180) + ')');
+                .attr('transform', 'translate(' + (chord_width/2) + ',' + chord_height/2 +') rotate(' + (-angleMap(curr_index + 0.5)*180/Math.PI - 180) + ')');
 
     var chord_organism = chord_svg_group.selectAll('circle')
         .data(data)
@@ -66,7 +67,7 @@ function makeChordVis(error, _data){
     var circles = chord_organism.append('circle')
                 .attr('cx', (d, i) => (r + 20)*Math.cos(angleMap(i + 0.5)))
                 .attr('cy', (d, i) => (r + 20)*Math.sin(angleMap(i + 0.5)))
-                .attr('r', screenScale(15))
+                .attr('r', 4)
                 .attr('id', (d, i) => "circle_" + i)
                 .style('fill', "#a8a8a8")
                 .style('stroke', (d, i) => ((i == curr_index) ? (order_color[d["Order"]]) : "transparent"))
@@ -489,7 +490,7 @@ function hightlightHoverElements(){
 function transition_chord(){
     chord_svg_group.transition().duration(2000)
         .attr('transform', 
-            'translate(' + chord_width/2 + ',' + chord_height/2 +') rotate(' + (-angleMap(curr_index + 0.5)*180/Math.PI - 180) + ')');
+            'translate(' + (chord_width/2) + ',' + chord_height/2 +') rotate(' + (-angleMap(curr_index + 0.5)*180/Math.PI - 180) + ')');
 
     d3.selectAll('.connections').transition().duration(1000)
         .style('opacity', 0)
