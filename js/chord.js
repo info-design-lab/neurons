@@ -429,14 +429,15 @@ function makeChordVis(error, data){
         var legend = legend_svg.append('g')
                     .attr('class', 'legend-lines');
 
+
         [1, 2, 3, data.length - 1, data.length - 2, data.length - 3].forEach(function(d, i){
 
             if(chord_ratio.length > 0){
                 legend.append('line')
                     .attr('x1', 0)
                     .attr('x2', 50)
-                    .attr('y1', i*20 + 40)
-                    .attr('y2', i*20 + 40)
+                    .attr('y1', i*20 + 20)
+                    .attr('y2', i*20 + 20)
                     .style('fill', 'none')
                     .style('stroke', () => ((d > 3) ? '#ef3b2c' : '#74a9cf'))
                     .style('stroke-width', function(){
@@ -446,7 +447,7 @@ function makeChordVis(error, data){
 
                 legend.append('text')
                     .attr('x', 60)
-                    .attr('y', i*20 + 40)
+                    .attr('y', i*20 + 20)
                     .attr('alignment-baseline', 'middle')
                     .attr('dominant-baseline', 'middle')
                     .attr('font-size', font_size)
