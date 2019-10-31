@@ -97,7 +97,7 @@ function makeRankVis(error, data){
             .attr('y2', vertical_offset + 4)
             .attr('x1', (_, e) => d[1](d[2][e]))
             .attr('x2', (_, e) => d[1](d[2][e]))
-            .attr('stroke', (_, e) => order_color[_["Order"]])
+            .attr('stroke', "#808080")
             .style('stroke-width', 2)
             .on('mouseover', function(d, i){rank_hover_index = i; updateHover()});
 

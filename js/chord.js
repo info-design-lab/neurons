@@ -258,7 +258,8 @@ function makeChordVis(error, data){
         })
 
     var rank_connecting_lines = rank_organism.append("path")
-        .attr('stroke', (d, i) => order_color[d["Order"]])
+        // .attr('stroke', (d, i) => order_color[d["Order"]])
+        .attr('stroke', "#808080")
         .attr('fill', 'none')
         .attr('stroke-width', 1)
         .attr('opacity', 1)
