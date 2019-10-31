@@ -1,12 +1,3 @@
-var legend_combinations = {
-    '1': ["Brain Mass", "Body Mass"],
-    '2': ["Neurons Cortex", "Neurons Whole Brain"],
-    '3': ["Neurons Cerebellum", "Neurons Whole Brain"],
-    '4': ["Neurons Rest of the Brain", "Neurons Whole Brain"]
-}
-var first_ratio = legend_combinations[1];
-var second_ratio = legend_combinations[2];
-
 var order_names = [
     "Primata",
     "Glires",
@@ -26,14 +17,14 @@ var order_color = {
 
 var curr_index = 6; // index of current organism at focus
 var hover_index = curr_index; // index of the organism which was hovered
-var num_connections = 3;
-var rank_vis_types = [
-    //num, denom, scale
-    ["Neurons Cortex", "Neurons Whole Brain", null, null],
-    ["Neurons Cerebellum", "Neurons Whole Brain", null, null],
-    ["Neurons Rest of Brain", "Non-Neurons Rest of Brain", null, null],
-    ["Brain Mass", "Body Mass", null, null],
-];
+var chord_ratio = ["Brain Mass", "Body Mass"]
+var rank_vis_variables = {
+        'numerator': chord_ratio[0],
+        "denominator": chord_ratio[1],
+        "rank_scale": null,
+        "ratio_scale": null,
+        "organisms": null
+    }
 
 const font_size = 13;
 
@@ -166,7 +157,6 @@ function makeChordVis(error, data){
         .on('mouseover', function(d, i){
             hover_index = i;
             hightlightHoverElements();
-            updateRankLine();
         });
 
     var line = d3.line()
@@ -177,7 +167,7 @@ function makeChordVis(error, data){
     createChords();
 
     var legend_width = document.getElementById("chord-legend").offsetWidth;
-    var legend_height = 300;
+    var legend_height = 150;
     var legend_svg = d3.select('#chord-legend')
                     .append('svg')
                     .attr('width', legend_width)
@@ -199,13 +189,15 @@ function makeChordVis(error, data){
         offset += order_count[i];
     }
 
-    const rank_vis_height = 70*rank_vis_types.length;
+    // Rank Visualization
+    const rank_vis_height = 200;
     const rank_margin = {
         left: 200,
         right: 100,
         top: 45,
         bottom: 0
     }
+
     const rank_vis_width = document.getElementById("linear-diagram").offsetWidth - rank_margin.left - rank_margin.right;
     var rank_svg = d3.select('#linear-diagram')
                 .append('svg')
@@ -215,89 +207,39 @@ function makeChordVis(error, data){
                 .attr('transform', 'translate(' + rank_margin.left + ', ' + rank_margin.top + ')')
 
     // Create rank vis
-    var connecting_line_data = []; // data for line connecting the ranks
     var rank_organism = rank_svg.selectAll('circle')
         .data(data)
         .enter();
 
-    rank_vis_types.forEach(function(d, i){
-        var rank_data = getChordData(d[0], d[1], true);
-        d[2] = d3.scaleLinear().domain([d3.min(rank_data), d3.max(rank_data)]).range([0, rank_vis_width]);
+    var rank_data = getChordData(rank_vis_variables.numerator, rank_vis_variables.denominator, false);
+    rank_vis_variables.ratio_scale = d3.scaleLinear().domain([d3.min(rank_data, (d, i) => d[0]), d3.max(rank_data, (d, i) => d[0])]).range([0, rank_vis_width]);
+    rank_vis_variables.rank_scale = d3.scaleLinear().domain([0, rank_data.length - 1]).range([0, rank_vis_width]);
 
-        rank_svg.append('text')
-            .attr('x', -10)
-            .attr('y', i*50 + 100 - 3)
-            .attr('text-anchor', 'end')
-            .text(d[0]);
 
-        rank_svg.append('text')
-            .attr('x', -10)
-            .attr('y', i*50 + 100 + 3)
-            .attr('text-anchor', 'end')
-            .attr('alignment-baseline', 'hanging')
-            .attr('dominant-baseline', 'hanging')
-            .text(d[1]);
-
-        rank_svg.append('line')
-            .attr('x1', -10)
-            .attr('x2', -(Math.max(d[0].length, d[1].length))*0.55*font_size)
-            .attr('y1', i*50 + 100)
-            .attr('y2', i*50 + 100)
-            .attr("stroke", 'grey')
-
-        rank_svg.append('line')
-            .attr('x1', 0)
-            .attr('x2', rank_vis_width)
-            .attr('y1', i*50 + 100)
-            .attr('y2', i*50 + 100)
-            .attr('stroke-width', 1)
-            .style('stroke-linecap', 'round')
-            .attr('stroke', '#bdbdbd');
-
-        var circles = rank_organism.append('line')
-            .attr('x1', (e, i) => d[2](rank_data[i]))
-            .attr('y1', i*50 + 100 - 4)
-            .attr('x2', (e, i) => d[2](rank_data[i]))
-            .attr('y2', i*50 + 100 + 4)
-            .attr('stroke', (d, i) => order_color[d["Order"]])
-            .attr('stroke-width', 2)
-            .style('opacity', 1)
-            .on('mouseover', function(d, i){
-                hover_index = i;
-                hightlightHoverElements()
-                updateRankLine();
-            })
-
-        d[3] = circles;
-
-        // connecting line data
-        for(j = -1; j < 2; j++){
-            if(i == 0 && j == -1) continue;
-            if(i == rank_vis_types.length - 1 && j == 1) continue;
-            connecting_line_data.push([
-                    d[2](rank_data[hover_index]),
-                    i*50 + j*25 + 100
-                ]); 
-        }
-    });
-
+    const vertical_offset = 90;
     // Rank vis text
-    var rank_data = getChordData(rank_vis_types[0][0], rank_vis_types[0][1], true);
     var rank_text = rank_organism.append('text')
-        .attr('transform', (d, i) => 'translate(' + rank_vis_types[0][2](rank_data[i]) + ',' + 90 + ') rotate(' + -45 + ')')
+        .attr('transform', function(d, i){
+            var rank_index = 0;
+            rank_data.forEach(function(e, f){
+                if(e[1] == i) {
+                    rank_index = f;
+                }
+            });
+            var x = rank_vis_variables.rank_scale(rank_index);
+
+            return 'translate(' + x + ',' + vertical_offset + ') rotate(' + -45 + ')'
+        })
         .attr('alignment-baseline', 'middle')
         .attr('dominant-baseline', 'middle')
         .attr('font-size', font_size)
-        .style('opacity', (d, i) => (i == curr_index) ? 1 : 0.2)
         .attr('font-size', (d, i) => (i == curr_index) ? font_size + 3 : font_size)
-        .style('opacity', (d, i) => (i == curr_index) ? 1 : 0.2)
         .attr('font-weight', (d, i) => (i == curr_index) ? 'bold' : 'normal')
         .text((d, i) => d["Common Name"])
         .attr('cursor', 'pointer')
         .on('mouseover', function(d, i){
             hover_index = i;
             hightlightHoverElements()
-            updateRankLine();
         })
         .on('click', function(d, i){
             d3.select("#circle_" + curr_index).style('stroke', 'transparent');
@@ -306,48 +248,52 @@ function makeChordVis(error, data){
             transition_chord();
         })
 
-    // Rank vis connecting line
-    var connecting_line = rank_svg.append('path')
-        .datum(connecting_line_data)
+    var rank_connecting_lines = rank_organism.append("path")
+        .attr('stroke', (d, i) => order_color[d["Order"]])
+        .attr('fill', 'none')
+        .attr('stroke-width', 1)
+        .attr('opacity', 1)
+        .datum(function(d, i){
+            var rank_index = 0;
+            rank_data.forEach(function(e, f){
+                if(e[1] == i) {
+                    rank_index = f;
+                }
+            });
+            var x = rank_vis_variables.rank_scale(rank_index);
+
+            return [[x, vertical_offset + 10],
+                    [x, vertical_offset + 20],
+                    [rank_vis_variables.ratio_scale(rank_data[rank_index][0]), vertical_offset + 60],
+                    [rank_vis_variables.ratio_scale(rank_data[rank_index][0]), vertical_offset + 70]]
+        })
         .attr('d', d3.line()
                 .curve(d3.curveLinear)
                 .x(function (d) { return d[0]; })
-                .y(function (d) { return d[1]; }))
-        .attr('fill', 'none')
-        .attr('stroke', '#e7298a')
-        .attr('stroke-width', 1)
-        .attr('opacity', 1);
+                .y(function (d) { return d[1]; }));
 
+    var rank_scale = rank_svg.append("g")
+        .attr("transform", "translate(0, " + (vertical_offset + 70) + ")")
+        .call(d3.axisBottom(rank_vis_variables.ratio_scale))
 
     // Legend selection
-    var classname = document.getElementsByClassName("legend");
+    var classname = document.getElementsByClassName("ratio_selector");
     for (var i = 0; i < classname.length; i++) {
-        classname[i].addEventListener('click', function(){
-            if(first_ratio.length > 0 && second_ratio.length > 0) this.checked = false;
-            first_ratio = [];
-            second_ratio = [];
-            for(var i in classname){
-                console.log(i)
-                if(first_ratio.length == 0 && classname[i].checked == true) first_ratio = legend_combinations[classname[i].value];
-                else if(second_ratio.length == 0 && classname[i].checked == true) second_ratio = legend_combinations[classname[i].value];
+        classname[i].addEventListener('change', function(){
+            if(this.name === "numerator"){
+                chord_ratio[0] = this.value
+            } else if(this.name === "denomiator"){
+                chord_ratio[1] = this.value
             }
 
-            if(second_ratio.length == 0){
-                for(var i in classname){
-                    if(classname[i].parentElement) classname[i].parentElement.style.opacity = 1;
-                }
-            } else{
-                for(var i in classname){
-                    if(classname[i].parentElement) classname[i].parentElement.style.opacity = (classname[i].checked) ? 1 : 0.5;
-                }
-            }
-
-            d3.selectAll('.connections').remove()
+            rank_vis_variables.numerator = chord_ratio[0];
+            rank_vis_variables.denominator = chord_ratio[1];
+            console.log(rank_vis_variables)
+            // d3.selectAll('.connections').remove()
             createChords();
-            createLegend();
-        }, false);
+            transition_chord()
+        });
     }
-
 
     function transition_chord(){
         g.transition().duration(2000)
@@ -397,46 +343,56 @@ function makeChordVis(error, data){
                 });
 
         // rank vis
-        connecting_line_data = [];
-        rank_vis_types.forEach(function(d, i){
-            var rank_data = getChordData(d[0], d[1], true);
-            d[2] = d3.scaleLinear().domain([d3.min(rank_data), d3.max(rank_data)]).range([0, rank_vis_width]);
+        var rank_data = getChordData(rank_vis_variables.numerator, rank_vis_variables.denominator, false);
+        rank_vis_variables.ratio_scale = d3.scaleLinear().domain([d3.min(rank_data, (d, i) => d[0]), d3.max(rank_data, (d, i) => d[0])]).range([0, rank_vis_width]);
+        rank_vis_variables.rank_scale = d3.scaleLinear().domain([0, rank_data.length - 1]).range([0, rank_vis_width]);
 
-            d[3].transition()
-                .duration(2000)
-                .attr('x1', (e, i) => d[2](rank_data[i]))
-                .attr('x2', (e, i) => d[2](rank_data[i]));
-
-            for(j = -1; j < 2; j++){
-                if(i == 0 && j == -1) continue;
-                if(i == rank_vis_types.length - 1 && j == 1) continue;
-                connecting_line_data.push([
-                        d[2](rank_data[hover_index]),
-                        i*50 + j*25 + 100
-                    ]); 
-            }
-        });
-
-        var rank_data = getChordData(rank_vis_types[0][0], rank_vis_types[0][1], true);
         rank_text.transition()
             .duration(2000)
-            .attr('transform', (d, i) => 'translate(' + rank_vis_types[0][2](rank_data[i]) + ',' + 90 + ') rotate(' + -45 + ')');
-    
-        connecting_line
-            .datum(connecting_line_data)
+            .attr('transform', function(d, i){
+            var rank_index = 0;
+            rank_data.forEach(function(e, f){
+                if(e[1] == i) {
+                    rank_index = f;
+                }
+            });
+            var x = rank_vis_variables.rank_scale(rank_index);
+
+            return 'translate(' + x + ',' + vertical_offset + ') rotate(' + -45 + ')'
+        })
+
+        rank_connecting_lines
+            .datum(function(d, i){
+                var rank_index = 0;
+                rank_data.forEach(function(e, f){
+                    if(e[1] == i) {
+                        rank_index = f;
+                    }
+                });
+                var x = rank_vis_variables.rank_scale(rank_index);
+
+                return [[x, vertical_offset + 10],
+                        [x, vertical_offset + 20],
+                        [rank_vis_variables.ratio_scale(rank_data[rank_index][0]), vertical_offset + 60],
+                        [rank_vis_variables.ratio_scale(rank_data[rank_index][0]), vertical_offset + 70]]
+            })
             .transition()
             .duration(2000)
             .attr('d', d3.line()
                     .curve(d3.curveLinear)
                     .x(function (d) { return d[0]; })
                     .y(function (d) { return d[1]; }));
+
+        rank_scale.transition()
+            .duration(2000)
+            .call(d3.axisBottom(rank_vis_variables.ratio_scale))
     }
 
     function createChords(){
         // Create chord based on the ratios
-        if(first_ratio.length > 0){
-            var chord_data = getChordData(first_ratio[0], first_ratio[1]);
-            [chord_data.length - 1, 1, 2, 3].forEach(function(d, i){
+        if(chord_ratio.length > 0){
+            var chord_data = getChordData(chord_ratio[0], chord_ratio[1]);
+            [1, 2, 3, chord_data.length - 1, chord_data.length - 2, chord_data.length - 3].forEach(function(d, i){
                 g.append('path')
                     .datum([
                         [(r)*Math.cos(angleMap(curr_index + 0.5)), (r)*Math.sin(angleMap(curr_index + 0.5))],
@@ -445,36 +401,14 @@ function makeChordVis(error, data){
                         ])
                     .attr('d', line)
                     .style('fill', 'none')
-                    .style('stroke', () => ((d == chord_data.length - 1) ? '#ef3b2c' : '#74a9cf'))
+                    .style('stroke', () => ((d > 3) ? '#ef3b2c' : '#74a9cf'))
                     .style('stroke-width', function(){
-                        if(d == chord_data.length - 1) return 1;
-                        return 5 - d*2
+                        if(d > 3) return 5 - (chord_data.length - d)*1.5;
+                        return 5 - d*1.5
                     })
                     .style('opacity', 0)
                     .attr('class', 'connections');
             });
-        }
-
-        if(second_ratio.length > 0){
-            var chord_data = getChordData(second_ratio[0], second_ratio[1]);
-            [chord_data.length - 1, 1, 2, 3].forEach(function(d, i){
-                g.append('path')
-                    .datum([
-                        [(r)*Math.cos(angleMap(curr_index + 0.5)), (r)*Math.sin(angleMap(curr_index + 0.5))],
-                        [0, 0],
-                        [(r)*Math.cos(angleMap(chord_data[d][1] + 0.5)), (r)*Math.sin(angleMap(chord_data[d][1] + 0.5))]
-                        ])
-                    .attr('d', line)
-                    .style('fill', 'none')
-                    .style('stroke', () => ((d == chord_data.length - 1) ? '#ef3b2c' : '#74a9cf'))
-                    .style('stroke-width', function(){
-                        if(d == chord_data.length - 1) return 1;
-                        return 5 - d*2
-                    })
-                    .style("stroke-dasharray", "8,4")
-                    .style('opacity', 0)
-                    .attr('class', 'connections');
-            });        
         }
 
         d3.selectAll('.connections').transition().duration(1000)
@@ -486,18 +420,19 @@ function makeChordVis(error, data){
         var legend = legend_svg.append('g')
                     .attr('class', 'legend-lines');
 
-        [0, 1, 2, 38].forEach(function(d, i){
-            if(first_ratio.length > 0){
+        [1, 2, 3, data.length - 1, data.length - 2, data.length - 3].forEach(function(d, i){
+
+            if(chord_ratio.length > 0){
                 legend.append('line')
                     .attr('x1', 0)
                     .attr('x2', 50)
                     .attr('y1', i*20 + 40)
                     .attr('y2', i*20 + 40)
                     .style('fill', 'none')
-                    .style('stroke', () => ((d == 38) ? '#ef3b2c' : '#74a9cf'))
+                    .style('stroke', () => ((d > 3) ? '#ef3b2c' : '#74a9cf'))
                     .style('stroke-width', function(){
-                        if(d == 38) return 1;
-                        return 5 - d*2
+                        if(d > 3) return (data.length - d)*1.5;
+                        return 5 - d*1.5
                     });
 
                 legend.append('text')
@@ -507,55 +442,12 @@ function makeChordVis(error, data){
                     .attr('dominant-baseline', 'middle')
                     .attr('font-size', font_size)
                     .text(function(){
-                        if(d == 38) return 'farthest' ;
-                        return (d + 1) + 'st closest'
+                        if(d > 3) return (4 - (data.length - d)) + 'st farthest';
+                        return (d) + 'st closest'
                     });
+
             }
-
-            if(second_ratio.length > 0){
-                legend.append('line')
-                    .attr('x1', 0)
-                    .attr('x2', 50)
-                    .attr('y1', i*20 + 30 + 150)
-                    .attr('y2', i*20 + 30 + 150)
-                    .style('fill', 'none')
-                    .style('stroke', () => ((d == 38) ? '#ef3b2c' : '#74a9cf'))
-                    .style('stroke-width', function(){
-                        if(d == 38) return 1;
-                        return 5 - d*2
-                    })
-                    .style("stroke-dasharray", "8,4");
-
-                legend.append('text')
-                    .attr('x', 60)
-                    .attr('y', i*20 + 30 + 150)
-                    .attr('alignment-baseline', 'middle')
-                    .attr('dominant-baseline', 'middle')
-                    .attr('font-size', font_size)
-                    .text(function(){
-                        if(d == 38) return 'farthest' ;
-                        return (d + 1) + 'st closest'
-                });               
-            }
-
         });
-
-        if(first_ratio.length > 0){
-            legend.append('text')
-                .attr('x', 0)
-                .attr('y', 20)
-                .attr('font-size', font_size + 2)
-                .text(first_ratio[0] + ' / ' + first_ratio[1]);
-        }
-
-
-        if(second_ratio.length > 0){
-            legend.append('text')
-                .attr('x', 0)
-                .attr('y', 150)
-                .attr('font-size', font_size + 2)
-                .text(second_ratio[0] + ' / ' + second_ratio[1]);            
-        }
     }
 
     function groupOrders(data){
@@ -644,37 +536,10 @@ function makeChordVis(error, data){
         return differences;
     }
 
-    function updateRankLine(){
-        connecting_line_data = [];
-
-        rank_vis_types.forEach(function(d, i){
-            var rank_data = getChordData(d[0], d[1], true);
-            d[2] = d3.scaleLinear().domain([d3.min(rank_data), d3.max(rank_data)]).range([0, rank_vis_width]);
-
-            for(j = -1; j < 2; j++){
-                if(i == 0 && j == -1) continue;
-                if(i == rank_vis_types.length - 1 && j == 1) continue;
-                connecting_line_data.push([
-                        d[2](rank_data[hover_index]),
-                        i*50 + j*25 + 100
-                    ]); 
-            }
-        });
-
-        connecting_line
-            .datum(connecting_line_data)
-            .transition()
-            .duration(100)
-            .attr('d', d3.line()
-                    .curve(d3.curveLinear)
-                    .x(function (d) { return d[0]; })
-                    .y(function (d) { return d[1]; }));
-    }
-
     function hightlightHoverElements(){
         rank_text
             .attr('font-size', (d, i) => (hover_index == i || i == curr_index) ? font_size + 3 : font_size)
-            .style('opacity', (d, i) => (hover_index == i || i == curr_index) ? 1 : 0.2)
+            // .style('opacity', (d, i) => (hover_index == i || i == curr_index) ? 1 : 0.2)
             .attr('font-weight', (d, i) => (hover_index == i || i == curr_index) ? 'bold' : 'normal');
 
         chord_text
