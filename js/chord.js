@@ -224,8 +224,6 @@ function makeChordVis(error, data){
     rank_vis_variables.ratio_scale = d3.scaleLinear().domain([d3.min(rank_data, (d, i) => d[0]), d3.max(rank_data, (d, i) => d[0])]).range([0, rank_vis_width]);
     rank_vis_variables.rank_scale = d3.scaleLinear().domain([0, rank_data.length - 1]).range([0, rank_vis_width]);
 
-
-    
     // Rank vis text
     var rank_text = rank_organism.append('text')
         .attr('transform', function(d, i){
@@ -298,7 +296,6 @@ function makeChordVis(error, data){
 
             rank_vis_variables.numerator = chord_ratio[0];
             rank_vis_variables.denominator = chord_ratio[1];
-            console.log(rank_vis_variables)
             // d3.selectAll('.connections').remove()
             createChords();
             transition_chord()
@@ -523,7 +520,11 @@ function makeChordVis(error, data){
     function getChordData(num, denom, indexes=false){
         var ratios = [];
         for(var i in data){
-            ratios.push(data[i][num]/data[i][denom]);
+            if(data[i][denom] < 0.01){
+                ratios.push(data[i][num]/0.00001);
+            } else{
+                ratios.push(data[i][num]/data[i][denom]);
+            }
         }
 
         const selected_ratio = data[curr_index][num]/data[curr_index][denom];
