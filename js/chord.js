@@ -197,6 +197,7 @@ function makeChordVis(error, data){
         top: 45,
         bottom: 0
     }
+    const vertical_offset = 90;
 
     const rank_vis_width = document.getElementById("linear-diagram").offsetWidth - rank_margin.left - rank_margin.right;
     var rank_svg = d3.select('#linear-diagram')
@@ -205,6 +206,14 @@ function makeChordVis(error, data){
                 .attr('height', rank_vis_height + rank_margin.top + rank_margin.bottom)
                 .append('g')
                 .attr('transform', 'translate(' + rank_margin.left + ', ' + rank_margin.top + ')')
+
+    rank_svg.append("text")
+        .attr("x", -10)
+        .attr("y", vertical_offset + 70)
+        .style("text-anchor", "end")
+        .style("alignment-baseline", "middle")
+        .style("dominant-baseline", "middle")
+        .text("Ratio Difference")
 
     // Create rank vis
     var rank_organism = rank_svg.selectAll('circle')
@@ -216,7 +225,7 @@ function makeChordVis(error, data){
     rank_vis_variables.rank_scale = d3.scaleLinear().domain([0, rank_data.length - 1]).range([0, rank_vis_width]);
 
 
-    const vertical_offset = 90;
+    
     // Rank vis text
     var rank_text = rank_organism.append('text')
         .attr('transform', function(d, i){
