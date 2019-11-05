@@ -15,8 +15,8 @@ var order_color = {
     "Eulipotyphla": "#8A9530",
 }
 
-var curr_index = 6; // index of current organism at focus
-var hover_index = curr_index; // index of the organism which was hovered
+var curr_index = -1; // index of current organism at focus
+var rank_hover_index = curr_index; // index of the organism which was hovered
 var chord_ratio = ["Brain Mass", "Body Mass"]
 var rank_vis_variables = {
         'numerator': chord_ratio[0],
@@ -150,12 +150,19 @@ function makeChordVis(error, data){
         .style('cursor', 'pointer')
         .on('click', function(d, i){
             d3.select("#circle_" + curr_index).style('stroke', 'transparent');
-            curr_index = parseInt(this.id.split('_')[1]);
-            d3.select("#circle_" + curr_index).style('stroke', order_color[d["Order"]]);
+            if(curr_index == parseInt(this.id.split('_')[1])){
+                curr_index = -1;
+                rank_label.text("Ratio")
+            } else{
+                curr_index = parseInt(this.id.split('_')[1]);
+                d3.select("#circle_" + curr_index).style('stroke', order_color[d["Order"]]);
+                rank_label.text("Ratio Difference")
+            }
+            
             transition_chord();
         })
         .on('mouseover', function(d, i){
-            hover_index = i;
+            rank_hover_index = i;
             hightlightHoverElements();
         });
 
@@ -207,13 +214,13 @@ function makeChordVis(error, data){
                 .append('g')
                 .attr('transform', 'translate(' + rank_margin.left + ', ' + rank_margin.top + ')')
 
-    rank_svg.append("text")
+    var rank_label = rank_svg.append("text")
         .attr("x", -10)
         .attr("y", vertical_offset + 70)
         .style("text-anchor", "end")
         .style("alignment-baseline", "middle")
         .style("dominant-baseline", "middle")
-        .text("Ratio Difference")
+        .text("Ratio")
 
     // Create rank vis
     var rank_organism = rank_svg.selectAll('circle')
@@ -245,13 +252,19 @@ function makeChordVis(error, data){
         .text((d, i) => d["Common Name"])
         .attr('cursor', 'pointer')
         .on('mouseover', function(d, i){
-            hover_index = i;
+            rank_hover_index = i;
             hightlightHoverElements()
         })
         .on('click', function(d, i){
             d3.select("#circle_" + curr_index).style('stroke', 'transparent');
-            curr_index = i;
-            d3.select("#circle_" + curr_index).style('stroke', order_color[d["Order"]]);
+            if(curr_index == i){
+                curr_index = -1;
+                rank_label.text("Ratio")
+            } else{
+                curr_index = i;
+                d3.select("#circle_" + curr_index).style('stroke', order_color[d["Order"]]);
+                rank_label.text("Ratio Difference")
+            }
             transition_chord();
         })
 
@@ -419,7 +432,7 @@ function makeChordVis(error, data){
         }
 
         d3.selectAll('.connections').transition().duration(1000)
-            .style('opacity', 1);
+            .style('opacity', (curr_index == -1) ? 0 : 1);
     }
 
     function createLegend(){
@@ -521,13 +534,13 @@ function makeChordVis(error, data){
         var ratios = [];
         for(var i in data){
             if(data[i][denom] < 0.01){
-                ratios.push(data[i][num]/0.00001);
+                ratios.push(data[i][num]/0.1);
             } else{
                 ratios.push(data[i][num]/data[i][denom]);
             }
         }
 
-        const selected_ratio = data[curr_index][num]/data[curr_index][denom];
+        var selected_ratio = (curr_index === -1) ? 0: data[curr_index][num]/data[curr_index][denom]
         var differences = [];
 
         if(indexes){
@@ -550,13 +563,13 @@ function makeChordVis(error, data){
 
     function hightlightHoverElements(){
         rank_text
-            .attr('font-size', (d, i) => (hover_index == i || i == curr_index) ? font_size + 3 : font_size)
-            // .style('opacity', (d, i) => (hover_index == i || i == curr_index) ? 1 : 0.2)
-            .attr('font-weight', (d, i) => (hover_index == i || i == curr_index) ? 'bold' : 'normal');
+            .attr('font-size', (d, i) => (rank_hover_index == i || i == curr_index) ? font_size + 3 : font_size)
+            // .style('opacity', (d, i) => (rank_hover_index == i || i == curr_index) ? 1 : 0.2)
+            .attr('font-weight', (d, i) => (rank_hover_index == i || i == curr_index) ? 'bold' : 'normal');
 
         chord_text
-            .attr('font-size', (d, i) => (hover_index == i || i == curr_index) ? font_size + 3 : font_size)
-            .attr('font-weight', (d, i) => (hover_index == i || i == curr_index) ? 'bold' : 'normal');
+            .attr('font-size', (d, i) => (rank_hover_index == i || i == curr_index) ? font_size + 3 : font_size)
+            .attr('font-weight', (d, i) => (rank_hover_index == i || i == curr_index) ? 'bold' : 'normal');
     }
 }
 

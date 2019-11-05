@@ -44,7 +44,6 @@ function makeRankVis(error, data){
         if(len > offset) offset = len;
     });
 
-    console.log(data)
     const margin = {
         top: offset/Math.sqrt(2) + 10,
         bottom: 20,
