@@ -182,6 +182,19 @@ function makeChordVis(error, data){
 
     createLegend();
 
+    g.append("circle")
+        .attr("cx", 0)
+        .attr("cy", 0)
+        .attr("r", r)
+        .attr('fill', 'transparent')
+        .style("cursor", "pointer")
+        .on("click", function(){
+            d3.select("#circle_" + curr_index).style('stroke', 'transparent');
+            curr_index = -1;
+            rank_label.text("Ratio");
+            transition_chord();
+        })
+
     // Create the groupings in the circle
     var offset = 0;
     for(var i = 0; i < order_count.length; i++){
