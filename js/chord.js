@@ -339,10 +339,12 @@ function makeChordVis(error, data){
     document.getElementById("chord-image").style.top = margin.top + r;
 
     function transition_chord(){
-        g.transition().duration(2000)
-            .attr('transform', 
-                'translate(' + width/2 + ',' + height/2 +') rotate(' + (-angleMap(curr_index + 0.5)*180/Math.PI - 180) + ')');
-
+        if(curr_index != -1){
+            g.transition().duration(2000)
+                .attr('transform', 
+                    'translate(' + width/2 + ',' + height/2 +') rotate(' + (-angleMap(curr_index + 0.5)*180/Math.PI - 180) + ')');
+        }
+      
         d3.selectAll('.connections').transition().duration(1000)
             .style('opacity', 0)
             .on('end', function(){
