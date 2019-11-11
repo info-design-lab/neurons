@@ -336,6 +336,8 @@ function makeChordVis(error, data){
         });
     }
 
+    document.getElementById("chord-image").style.top = margin.top + r;
+
     function transition_chord(){
         g.transition().duration(2000)
             .attr('transform', 
