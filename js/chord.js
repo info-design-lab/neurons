@@ -152,11 +152,14 @@ function makeChordVis(error, data){
             d3.select("#circle_" + curr_index).style('stroke', 'transparent');
             if(curr_index == parseInt(this.id.split('_')[1])){
                 curr_index = -1;
-                rank_label.text("Ratio")
+                rank_label.text("Ratio");
+                document.getElementById("chord-image").style.visibility = "hidden";
             } else{
                 curr_index = parseInt(this.id.split('_')[1]);
                 d3.select("#circle_" + curr_index).style('stroke', order_color[d["Order"]]);
-                rank_label.text("Ratio Difference")
+                rank_label.text("Ratio Difference");
+                document.getElementById("chord-image").style.visibility = "visible";
+                document.getElementById("chord-image").src = "images/Resized/" + d["Common Name"] + ".png";
             }
             
             transition_chord();
@@ -192,6 +195,8 @@ function makeChordVis(error, data){
             d3.select("#circle_" + curr_index).style('stroke', 'transparent');
             curr_index = -1;
             rank_label.text("Ratio");
+            document.getElementById("chord-image").style.visibility = "hidden";
+
             transition_chord();
         })
 
@@ -273,10 +278,13 @@ function makeChordVis(error, data){
             if(curr_index == i){
                 curr_index = -1;
                 rank_label.text("Ratio")
+                document.getElementById("chord-image").style.visibility = "hidden";
             } else{
                 curr_index = i;
                 d3.select("#circle_" + curr_index).style('stroke', order_color[d["Order"]]);
-                rank_label.text("Ratio Difference")
+                rank_label.text("Ratio Difference");
+                document.getElementById("chord-image").style.visibility = "visible";
+                document.getElementById("chord-image").src = "images/Resized/" + d["Common Name"] + ".png";
             }
             transition_chord();
         })

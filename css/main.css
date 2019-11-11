@@ -10,14 +10,9 @@ body, html{
   overflow-x: hidden;
 }
 
-.column1 {
-  float: left;
-  width: 80%;
-}
 
-.column2 {
+.column {
   float: left;
-  width: 20%;
 }
 
 /* Clear floats after the columns */
