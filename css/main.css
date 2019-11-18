@@ -3,11 +3,26 @@
   src: url('fonts/RobotoCondensed-Regular.ttf');
 }
 
+
+@font-face {
+  font-family: 'Roboto Slab Regular';
+  src: url('fonts/RobotoSlab-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Roboto Slab Bold';
+  src: url('fonts/RobotoSlab-Bold.ttf');
+}
+
 body, html{
-  font-family: 'Roboto Condensed', sans-serif;
+  font-family: 'Roboto Slab Regular', sans-serif;
   margin: 0;
   padding: 10px;
   overflow-x: hidden;
+}
+
+h1{
+  font-family: 'Roboto Slab Bold';
 }
 
 .heading-description{
@@ -61,9 +76,11 @@ body, html{
   margin-bottom: 100vh;
   z-index: 10;
   position: relative;
+  /*
   border-radius: 10px;
   border-style: solid;
   border-color: black;
+  */
   opacity: 0.8;
 }
 
