@@ -1,13 +1,3 @@
-var rank_types =[
-    ["Body Mass", null, null],
-    ["Brain Mass", null, null],
-    ["Neurons Cortex", null, null],
-    ["Neurons Cerebellum", null, null],
-    ["Total Neurons", null, null],
-];
-
-rank_hover_index = 0;
-
 queue()
     .defer(d3.csv, 'data/data.csv')
     .await(makeRankVis);
@@ -36,7 +26,7 @@ function makeRankVis(error, data){
         d["Species"] = d["Species"].trim();
     });
 
-    const rank_div_width = document.getElementById("rank-diagram").offsetWidth;
+    const rank_div_width = document.getElementById("visualization").offsetWidth;
     const screenScale = d3.scaleLinear().domain([0, 2560]).range([0, rank_div_width]);
     var offset = 0;
     data.forEach(function(d, i){
@@ -51,13 +41,13 @@ function makeRankVis(error, data){
         right: 80
     }
     const width = rank_div_width - margin.left - margin.right;
-    const height = margin.top + 50*rank_types.length;
+    const height = margin.top + 30*rank_types.length + 20;
     const r = height*0.6;
 
     var parentSVG = d3.select('#rank-diagram')
                 .append('svg')
                 .attr('width', width + margin.left + margin.right)
-                .attr('height', height + margin.top + margin.bottom);
+                .attr('height', height + margin.bottom);
 
     var svg = parentSVG.append('g')
                 .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
@@ -98,7 +88,8 @@ function makeRankVis(error, data){
             .attr('x2', (_, e) => d[1](d[2][e]))
             .attr('stroke', "#808080")
             .style('stroke-width', 2)
-            .on('mouseover', function(d, i){rank_hover_index = i; updateHover()});
+            .on('mouseover', function(d, i){rank_hover_index = i; 
+                updateHover()});
 
         // connecting line data
         for(j = -1; j < 2; j++){
@@ -111,7 +102,7 @@ function makeRankVis(error, data){
         }
     });
 
-    var rank_text = organism.append('text')
+    rank_text = organism.append('text')
             .attr('dominant-baseline', 'middle')
             .attr('alignment-baseline', 'middle')
             .attr('transform', (_, e) => "translate(" + (rank_types[0][1](rank_types[0][2][e])) + ", -5) rotate(-45)")
@@ -119,10 +110,11 @@ function makeRankVis(error, data){
             .attr('font-weight', (d, i) => (i == rank_hover_index) ? "bold" : "normal")
             .attr('font-size', (d, i) => (i == rank_hover_index) ? "15px" : "13px")
             .style('cursor', 'pointer')
-            .on('mouseover', function(d, i){rank_hover_index = i; updateHover()});
+            .on('mouseover', function(d, i){rank_hover_index = i;                 console.log(i)
+updateRankHover()});
 
     // Rank vis connecting line
-    var connecting_line = svg.append('path')
+    connecting_line = svg.append('path')
         .datum(connecting_line_data)
         .attr('d', d3.line()
                 .curve(d3.curveLinear)
@@ -133,7 +125,27 @@ function makeRankVis(error, data){
         .attr('stroke-width', 1)
         .attr('opacity', 1);
 
-    function updateHover(){
+    function getRankData(field){
+        var dummy = [];
+        data.forEach(function(d, i){
+            dummy.push([d[field], i]);
+        });
+
+        dummy.sort(function(a, b){
+            return -(a[0] - b[0]);
+        });
+
+        var ranks = {};
+
+        dummy.forEach(function(d, i){
+            ranks[d[1]] = i;
+        })
+
+        return ranks;
+    }
+}
+
+function updateRankHover(duration=100){
         connecting_line_data = [];
          // connecting line data
         rank_types.forEach(function(d, i){
@@ -162,23 +174,3 @@ function makeRankVis(error, data){
             .attr('font-weight', (d, i) => (i == rank_hover_index) ? "bold" : "normal")
             .attr('font-size', (d, i) => (i == rank_hover_index) ? "15px" : "13px")
     }
-
-    function getRankData(field){
-        var dummy = [];
-        data.forEach(function(d, i){
-            dummy.push([d[field], i]);
-        });
-
-        dummy.sort(function(a, b){
-            return -(a[0] - b[0]);
-        });
-
-        var ranks = {};
-
-        dummy.forEach(function(d, i){
-            ranks[d[1]] = i;
-        })
-
-        return ranks;
-    }
-}

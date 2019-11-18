@@ -10,6 +10,62 @@ body, html{
   overflow-x: hidden;
 }
 
+.heading-description{
+  font-size: 30px; 
+  max-width: 1000px; 
+  vertical-align: middle; 
+  margin: 0 auto;
+  text-align: justify;
+}
+
+#visualization{
+  position: fixed;
+  width: 100%;
+  max-width: 1200px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  overflow-x: hidden;
+  margin-bottom: -500px;
+}
+
+#chord-checkbox{
+  display: none;
+}
+
+#rank-diagram{
+  display: none;
+}
+
+#chord-diagram{
+  overflow-x: hidden;
+  display: none;
+}
+
+#chord-legend{
+  display: none;
+}
+
+#chord-image{
+  display: none;
+}
+
+#linear-diagram{
+  display: none;
+}
+
+.block-text{
+  background: white;
+  padding: 20px;
+  font-size: 25px;
+  margin-bottom: 100vh;
+  z-index: 10;
+  position: relative;
+  border-radius: 10px;
+  border-style: solid;
+  border-color: black;
+  opacity: 0.8;
+}
 
 .column {
   float: left;

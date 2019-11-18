@@ -26,18 +26,40 @@ var rank_vis_variables = {
         "organisms": null
     }
 
+var rank_types =[
+    ["Body Mass", null, null],
+    ["Brain Mass", null, null],
+    ["Neurons Cortex", null, null],
+    ["Neurons Cerebellum", null, null],
+    ["Total Neurons", null, null],
+];
+
+rank_hover_index = 0;
+
+const visualization_width = document.getElementById("visualization").offsetWidth*0.6;
+const screenScale = d3.scaleLinear().domain([0, 2560]).range([0, visualization_width]);
 const font_size = 13;
+
+var g, width, height, angleMap, chord_text, connecting_line, r, data, 
+    rank_text, chord_rank_text, rank_vis_width, line, rank_connecting_lines, rank_scale, rank_label;
+const vertical_offset = 90;
+
+
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, 'g'), replacement);
+};
 
 queue()
     .defer(d3.csv, 'data/data.csv')
     .await(makeChordVis);
 
-function makeChordVis(error, data){
+function makeChordVis(error, rawdata){
   	if(error){
   		console.log(error);
   	}
 
-    data.forEach(function(d){
+    rawdata.forEach(function(d){
         d["Body Mass"] = parseInt(d["Body Mass"].replaceAll(",", ""));
         d["Brain Mass"] = parseInt(d["Brain Mass"].replaceAll(",", ""));
         d["Neurons Cortex"] = parseInt(d["Neurons Cortex"].replaceAll(",", ""));
@@ -57,9 +79,7 @@ function makeChordVis(error, data){
     });
 
     // sort the orgranisms based on the "order"
-    data = groupOrders(data);
-    const chord_div_width = document.getElementById("chord-diagram").offsetWidth;
-    const screenScale = d3.scaleLinear().domain([0, 2560]).range([0, chord_div_width]);
+    data = groupOrders(rawdata);
     var offset = 0;
     data.forEach(function(d, i){
         const len = d["Common Name"].length*font_size*0.6;
@@ -71,20 +91,20 @@ function makeChordVis(error, data){
         left: 0,
         right: 0
     }
-    const width = chord_div_width - margin.left - margin.right;
-    const height = width/6;
-    const r = height*0.6;
+    width = visualization_width - margin.left - margin.right;
+    r = width*0.15;
+    height = 2*r;
 
     var svg = d3.select('#chord-diagram')
                 .append('svg')
                 .attr('width', width + margin.left + margin.right)
                 .attr('height', height + margin.top + margin.bottom);
 
-    var angleMap = d3.scaleLinear().domain([0, 40]).range([
+    angleMap = d3.scaleLinear().domain([0, 40]).range([
         0, 
         2*Math.PI]);
 
-    var g = svg.append('g')
+    g = svg.append('g')
                 .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
                 .append('g')
                 .attr('transform', 'translate(' + width/2 + ',' + height/2 +') rotate(' + (-angleMap(curr_index + 0.5)*180/Math.PI - 180) + ')');
@@ -96,14 +116,14 @@ function makeChordVis(error, data){
     var circles = chord_organism.append('circle')
                 .attr('cx', (d, i) => (r + 20)*Math.cos(angleMap(i + 0.5)))
                 .attr('cy', (d, i) => (r + 20)*Math.sin(angleMap(i + 0.5)))
-                .attr('r', screenScale(15))
+                .attr('r', screenScale(25))
                 .attr('id', (d, i) => "circle_" + i)
                 .style('fill', "#a8a8a8")
                 .style('stroke', (d, i) => ((i == curr_index) ? (order_color[d["Order"]]) : "transparent"))
                 .style('stroke-weight', 3)
                 .style('cursor', 'pointer');
 
-    var chord_text = chord_organism.append('text')
+    chord_text = chord_organism.append('text')
                 .attr('text-anchor', function(d, i){
                     const a = (curr_index + 10)%40;
                     const b = (curr_index + 30)%40;
@@ -152,14 +172,8 @@ function makeChordVis(error, data){
             d3.select("#circle_" + curr_index).style('stroke', 'transparent');
             if(curr_index == parseInt(this.id.split('_')[1])){
                 curr_index = -1;
-                rank_label.text("Ratio");
-                document.getElementById("chord-image").style.visibility = "hidden";
             } else{
                 curr_index = parseInt(this.id.split('_')[1]);
-                d3.select("#circle_" + curr_index).style('stroke', order_color[d["Order"]]);
-                rank_label.text("Ratio Difference");
-                document.getElementById("chord-image").style.visibility = "visible";
-                document.getElementById("chord-image").src = "images/Resized/" + d["Common Name"] + ".png";
             }
             
             transition_chord();
@@ -169,14 +183,14 @@ function makeChordVis(error, data){
             hightlightHoverElements();
         });
 
-    var line = d3.line()
+    line = d3.line()
                 .curve(d3.curveBundle)
                 .x(function (d) { return d[0]; })
                 .y(function (d) { return d[1]; });
 
     createChords();
 
-    var legend_width = document.getElementById("chord-legend").offsetWidth;
+    var legend_width = document.getElementById("visualization").offsetWidth*0.2;
     var legend_height = 150;
     var legend_svg = d3.select('#chord-legend')
                     .append('svg')
@@ -222,9 +236,8 @@ function makeChordVis(error, data){
         top: 45,
         bottom: 0
     }
-    const vertical_offset = 90;
 
-    const rank_vis_width = document.getElementById("linear-diagram").offsetWidth - rank_margin.left - rank_margin.right;
+    rank_vis_width = document.getElementById("visualization").offsetWidth - rank_margin.left - rank_margin.right;
     var rank_svg = d3.select('#linear-diagram')
                 .append('svg')
                 .attr('width', rank_vis_width + rank_margin.left + rank_margin.right)
@@ -232,7 +245,7 @@ function makeChordVis(error, data){
                 .append('g')
                 .attr('transform', 'translate(' + rank_margin.left + ', ' + rank_margin.top + ')')
 
-    var rank_label = rank_svg.append("text")
+    rank_label = rank_svg.append("text")
         .attr("x", -10)
         .attr("y", vertical_offset + 70)
         .style("text-anchor", "end")
@@ -250,7 +263,7 @@ function makeChordVis(error, data){
     rank_vis_variables.rank_scale = d3.scaleLinear().domain([0, rank_data.length - 1]).range([0, rank_vis_width]);
 
     // Rank vis text
-    var rank_text = rank_organism.append('text')
+    chord_rank_text = rank_organism.append('text')
         .attr('transform', function(d, i){
             var rank_index = 0;
             rank_data.forEach(function(e, f){
@@ -277,19 +290,13 @@ function makeChordVis(error, data){
             d3.select("#circle_" + curr_index).style('stroke', 'transparent');
             if(curr_index == i){
                 curr_index = -1;
-                rank_label.text("Ratio")
-                document.getElementById("chord-image").style.visibility = "hidden";
             } else{
                 curr_index = i;
-                d3.select("#circle_" + curr_index).style('stroke', order_color[d["Order"]]);
-                rank_label.text("Ratio Difference");
-                document.getElementById("chord-image").style.visibility = "visible";
-                document.getElementById("chord-image").src = "images/Resized/" + d["Common Name"] + ".png";
             }
             transition_chord();
         })
 
-    var rank_connecting_lines = rank_organism.append("path")
+    rank_connecting_lines = rank_organism.append("path")
         // .attr('stroke', (d, i) => order_color[d["Order"]])
         .attr('stroke', "#808080")
         .attr('fill', 'none')
@@ -314,7 +321,7 @@ function makeChordVis(error, data){
                 .x(function (d) { return d[0]; })
                 .y(function (d) { return d[1]; }));
 
-    var rank_scale = rank_svg.append("g")
+    rank_scale = rank_svg.append("g")
         .attr("transform", "translate(0, " + (vertical_offset + 70) + ")")
         .call(d3.axisBottom(rank_vis_variables.ratio_scale))
 
@@ -338,127 +345,7 @@ function makeChordVis(error, data){
 
     document.getElementById("chord-image").style.top = margin.top + r;
 
-    function transition_chord(){
-        if(curr_index != -1){
-            g.transition().duration(2000)
-                .attr('transform', 
-                    'translate(' + width/2 + ',' + height/2 +') rotate(' + (-angleMap(curr_index + 0.5)*180/Math.PI - 180) + ')');
-        }
-      
-        d3.selectAll('.connections').transition().duration(1000)
-            .style('opacity', 0)
-            .on('end', function(){
-                d3.selectAll('.connections').remove()
-                createChords()
-            });
 
-        chord_text
-            .transition()
-            .delay(1000)
-            .duration(0)
-            .attr('font-weight', (d, i) => ((i == curr_index) ? 'bold' : 'normal'))
-            .attr('font-size', (d, i) => ((i == curr_index) ? font_size + 3 : font_size))
-            .attr('text-anchor', function(d, i){
-                    const a = (curr_index + 10)%40;
-                    const b = (curr_index + 30)%40;
-
-                    if((i < b) && (i > a) && (b > a)){
-                        return "start";
-                    } else if(!((i < a) && (i > b)) && (a > b)){
-                        return "start";
-                    }
-
-                    return "end";
-                })
-            .attr('transform', function(d, i){
-                    const x = ((r + 40)*Math.cos(angleMap(i+ 0.5)));
-                    const y = ((r + 40)*Math.sin(angleMap(i+ 0.5)));
-                    var theta = (angleMap(i+ 0.5)*180/Math.PI) - 180;
-                    
-                    const a = (curr_index + 10)%40;
-                    const b = (curr_index + 30)%40;
-
-                    if((i < b) && (i > a) && (b > a)){
-                        theta += 180;
-                    } else if(!((i < a) && (i > b)) && (a > b)){
-                        theta += 180;
-                    }
-
-                    return 'translate(' + x + ', ' + y + ') rotate(' + theta + ')';
-                });
-
-        // rank vis
-        var rank_data = getChordData(rank_vis_variables.numerator, rank_vis_variables.denominator, false);
-        rank_vis_variables.ratio_scale = d3.scaleLinear().domain([d3.min(rank_data, (d, i) => d[0]), d3.max(rank_data, (d, i) => d[0])]).range([0, rank_vis_width]);
-        rank_vis_variables.rank_scale = d3.scaleLinear().domain([0, rank_data.length - 1]).range([0, rank_vis_width]);
-
-        rank_text.transition()
-            .duration(2000)
-            .attr('transform', function(d, i){
-            var rank_index = 0;
-            rank_data.forEach(function(e, f){
-                if(e[1] == i) {
-                    rank_index = f;
-                }
-            });
-            var x = rank_vis_variables.rank_scale(rank_index);
-
-            return 'translate(' + x + ',' + vertical_offset + ') rotate(' + -45 + ')'
-        })
-
-        rank_connecting_lines
-            .datum(function(d, i){
-                var rank_index = 0;
-                rank_data.forEach(function(e, f){
-                    if(e[1] == i) {
-                        rank_index = f;
-                    }
-                });
-                var x = rank_vis_variables.rank_scale(rank_index);
-
-                return [[x, vertical_offset + 10],
-                        [x, vertical_offset + 20],
-                        [rank_vis_variables.ratio_scale(rank_data[rank_index][0]), vertical_offset + 60],
-                        [rank_vis_variables.ratio_scale(rank_data[rank_index][0]), vertical_offset + 70]]
-            })
-            .transition()
-            .duration(2000)
-            .attr('d', d3.line()
-                    .curve(d3.curveLinear)
-                    .x(function (d) { return d[0]; })
-                    .y(function (d) { return d[1]; }));
-
-        rank_scale.transition()
-            .duration(2000)
-            .call(d3.axisBottom(rank_vis_variables.ratio_scale))
-    }
-
-    function createChords(){
-        // Create chord based on the ratios
-        if(chord_ratio.length > 0){
-            var chord_data = getChordData(chord_ratio[0], chord_ratio[1]);
-            [1, 2, 3, chord_data.length - 1, chord_data.length - 2, chord_data.length - 3].forEach(function(d, i){
-                g.append('path')
-                    .datum([
-                        [(r)*Math.cos(angleMap(curr_index + 0.5)), (r)*Math.sin(angleMap(curr_index + 0.5))],
-                        [0, 0],
-                        [(r)*Math.cos(angleMap(chord_data[d][1] + 0.5)), (r)*Math.sin(angleMap(chord_data[d][1] + 0.5))]
-                        ])
-                    .attr('d', line)
-                    .style('fill', 'none')
-                    .style('stroke', () => ((d > 3) ? '#ef3b2c' : '#74a9cf'))
-                    .style('stroke-width', function(){
-                        if(d > 3) return 5 - (chord_data.length - d)*1.5;
-                        return 5 - d*1.5
-                    })
-                    .style('opacity', 0)
-                    .attr('class', 'connections');
-            });
-        }
-
-        d3.selectAll('.connections').transition().duration(1000)
-            .style('opacity', (curr_index == -1) ? 0 : 1);
-    }
 
     function createLegend(){
         d3.selectAll('.legend-lines').remove();
@@ -555,39 +442,9 @@ function makeChordVis(error, data){
         return false;
     }
 
-    function getChordData(num, denom, indexes=false){
-        var ratios = [];
-        for(var i in data){
-            if(data[i][denom] < 0.01){
-                ratios.push(data[i][num]/0.1);
-            } else{
-                ratios.push(data[i][num]/data[i][denom]);
-            }
-        }
-
-        var selected_ratio = (curr_index === -1) ? 0: data[curr_index][num]/data[curr_index][denom]
-        var differences = [];
-
-        if(indexes){
-            for(var i in ratios){
-                differences.push(Math.abs(selected_ratio - ratios[i]));
-            }
-            return differences;
-        }
-
-        for(var i in ratios){
-            differences.push([Math.abs(selected_ratio - ratios[i]), parseInt(i)]);
-        }
-
-        differences.sort(function(a, b){
-            return a[0] - b[0]
-        });
-
-        return differences;
-    }
 
     function hightlightHoverElements(){
-        rank_text
+        chord_rank_text
             .attr('font-size', (d, i) => (rank_hover_index == i || i == curr_index) ? font_size + 3 : font_size)
             // .style('opacity', (d, i) => (rank_hover_index == i || i == curr_index) ? 1 : 0.2)
             .attr('font-weight', (d, i) => (rank_hover_index == i || i == curr_index) ? 'bold' : 'normal');
@@ -598,10 +455,168 @@ function makeChordVis(error, data){
     }
 }
 
+function getChordData(num, denom, indexes=false){
+    var ratios = [];
+    for(var i in data){
+        if(data[i][denom] < 0.01){
+            ratios.push(data[i][num]/0.1);
+        } else{
+            ratios.push(data[i][num]/data[i][denom]);
+        }
+    }
+
+    var selected_ratio = (curr_index === -1) ? 0: data[curr_index][num]/data[curr_index][denom]
+    var differences = [];
+
+    if(indexes){
+        for(var i in ratios){
+            differences.push(Math.abs(selected_ratio - ratios[i]));
+        }
+        return differences;
+    }
+
+    for(var i in ratios){
+        differences.push([Math.abs(selected_ratio - ratios[i]), parseInt(i)]);
+    }
+
+    differences.sort(function(a, b){
+        return a[0] - b[0]
+    });
+
+    return differences;
+}
 
 
+function createChords(){
+    // Create chord based on the ratios
+    if(chord_ratio.length > 0){
+        var chord_data = getChordData(chord_ratio[0], chord_ratio[1]);
+        [1, 2, 3, chord_data.length - 1, chord_data.length - 2, chord_data.length - 3].forEach(function(d, i){
+            g.append('path')
+                .datum([
+                    [(r)*Math.cos(angleMap(curr_index + 0.5)), (r)*Math.sin(angleMap(curr_index + 0.5))],
+                    [0, 0],
+                    [(r)*Math.cos(angleMap(chord_data[d][1] + 0.5)), (r)*Math.sin(angleMap(chord_data[d][1] + 0.5))]
+                    ])
+                .attr('d', line)
+                .style('fill', 'none')
+                .style('stroke', () => ((d > 3) ? '#ef3b2c' : '#74a9cf'))
+                .style('stroke-width', function(){
+                    if(d > 3) return 5 - (chord_data.length - d)*1.5;
+                    return 5 - d*1.5
+                })
+                .style('opacity', 0)
+                .attr('class', 'connections');
+        });
+    }
 
-String.prototype.replaceAll = function(search, replacement) {
-    var target = this;
-    return target.replace(new RegExp(search, 'g'), replacement);
-};
+    d3.selectAll('.connections').transition().duration(1000)
+        .style('opacity', (curr_index == -1) ? 0 : 1);
+}
+
+function transition_chord(){
+    if(curr_index != -1){
+        g.transition().duration(2000)
+            .attr('transform', 
+                'translate(' + width/2 + ',' + height/2 +') rotate(' + (-angleMap(curr_index + 0.5)*180/Math.PI - 180) + ')');
+    
+        chord_text
+            .transition()
+            .delay(1000)
+            .duration(0)
+            .attr('font-weight', (d, i) => ((i == curr_index) ? 'bold' : 'normal'))
+            .attr('font-size', (d, i) => ((i == curr_index) ? font_size + 3 : font_size))
+            .attr('text-anchor', function(d, i){
+                    const a = (curr_index + 10)%40;
+                    const b = (curr_index + 30)%40;
+
+                    if((i < b) && (i > a) && (b > a)){
+                        return "start";
+                    } else if(!((i < a) && (i > b)) && (a > b)){
+                        return "start";
+                    }
+
+                    return "end";
+                })
+            .attr('transform', function(d, i){
+                    const x = ((r + 40)*Math.cos(angleMap(i+ 0.5)));
+                    const y = ((r + 40)*Math.sin(angleMap(i+ 0.5)));
+                    var theta = (angleMap(i+ 0.5)*180/Math.PI) - 180;
+                    
+                    const a = (curr_index + 10)%40;
+                    const b = (curr_index + 30)%40;
+
+                    if((i < b) && (i > a) && (b > a)){
+                        theta += 180;
+                    } else if(!((i < a) && (i > b)) && (a > b)){
+                        theta += 180;
+                    }
+
+                    return 'translate(' + x + ', ' + y + ') rotate(' + theta + ')';
+                });
+
+        
+        d3.select("#circle_" + curr_index).style('stroke', order_color[data[curr_index]["Order"]]);
+        rank_label.text("Ratio Difference");
+        document.getElementById("chord-image").style.visibility = "visible";
+        document.getElementById("chord-image").src = "images/Resized/" + data[curr_index]["Common Name"] + ".png";
+    
+    } else{
+        rank_label.text("Ratio");
+        document.getElementById("chord-image").style.visibility = "hidden";
+    }
+
+  
+    d3.selectAll('.connections').transition().duration(1000)
+        .style('opacity', 0)
+        .on('end', function(){
+            d3.selectAll('.connections').remove()
+            createChords()
+        });
+
+    
+    // rank vis
+    var rank_data = getChordData(rank_vis_variables.numerator, rank_vis_variables.denominator, false);
+    rank_vis_variables.ratio_scale = d3.scaleLinear().domain([d3.min(rank_data, (d, i) => d[0]), d3.max(rank_data, (d, i) => d[0])]).range([0, rank_vis_width]);
+    rank_vis_variables.rank_scale = d3.scaleLinear().domain([0, rank_data.length - 1]).range([0, rank_vis_width]);
+
+    chord_rank_text.transition()
+        .duration(2000)
+        .attr('transform', function(d, i){
+        var rank_index = 0;
+        rank_data.forEach(function(e, f){
+            if(e[1] == i) {
+                rank_index = f;
+            }
+        });
+        var x = rank_vis_variables.rank_scale(rank_index);
+
+        return 'translate(' + x + ',' + vertical_offset + ') rotate(' + -45 + ')'
+    })
+
+    rank_connecting_lines
+        .datum(function(d, i){
+            var rank_index = 0;
+            rank_data.forEach(function(e, f){
+                if(e[1] == i) {
+                    rank_index = f;
+                }
+            });
+            var x = rank_vis_variables.rank_scale(rank_index);
+
+            return [[x, vertical_offset + 10],
+                    [x, vertical_offset + 20],
+                    [rank_vis_variables.ratio_scale(rank_data[rank_index][0]), vertical_offset + 60],
+                    [rank_vis_variables.ratio_scale(rank_data[rank_index][0]), vertical_offset + 70]]
+        })
+        .transition()
+        .duration(2000)
+        .attr('d', d3.line()
+                .curve(d3.curveLinear)
+                .x(function (d) { return d[0]; })
+                .y(function (d) { return d[1]; }));
+
+    rank_scale.transition()
+        .duration(2000)
+        .call(d3.axisBottom(rank_vis_variables.ratio_scale))
+}
