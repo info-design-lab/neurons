@@ -89,7 +89,7 @@ function makeRankVis(error, data){
             .attr('stroke', "#808080")
             .style('stroke-width', 2)
             .on('mouseover', function(d, i){rank_hover_index = i; 
-                updateHover()});
+                updateRankHover()});
 
         // connecting line data
         for(j = -1; j < 2; j++){
@@ -110,8 +110,7 @@ function makeRankVis(error, data){
             .attr('font-weight', (d, i) => (i == rank_hover_index) ? "bold" : "normal")
             .attr('font-size', (d, i) => (i == rank_hover_index) ? "15px" : "13px")
             .style('cursor', 'pointer')
-            .on('mouseover', function(d, i){rank_hover_index = i;                 console.log(i)
-updateRankHover()});
+            .on('mouseover', function(d, i){rank_hover_index = i; updateRankHover()});
 
     // Rank vis connecting line
     connecting_line = svg.append('path')

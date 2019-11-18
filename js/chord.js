@@ -452,6 +452,10 @@ function makeChordVis(error, rawdata){
         chord_text
             .attr('font-size', (d, i) => (rank_hover_index == i || i == curr_index) ? font_size + 3 : font_size)
             .attr('font-weight', (d, i) => (rank_hover_index == i || i == curr_index) ? 'bold' : 'normal');
+
+        rank_connecting_lines
+            .attr("stroke", (d, i) => ((i === rank_hover_index) ? ("black") : ("#808080")))
+            .attr("stroke-width", (d, i) => ((i === rank_hover_index) ? (2) : (1)))
     }
 }
 
