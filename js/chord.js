@@ -38,7 +38,7 @@ rank_hover_index = 0;
 
 const visualization_width = document.getElementById("visualization").offsetWidth*0.6;
 const screenScale = d3.scaleLinear().domain([0, 2560]).range([0, visualization_width]);
-const font_size = 13;
+const font_size = 10;
 
 var g, width, height, angleMap, chord_text, connecting_line, r, data, 
     rank_text, chord_rank_text, rank_vis_width, line, rank_connecting_lines, rank_scale, rank_label;
