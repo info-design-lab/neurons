@@ -25,6 +25,10 @@ h1{
   font-family: 'Roboto Slab Bold';
 }
 
+#chord-checkbox{
+  font-size: 12px;
+}
+
 .heading-description{
   font-size: 20px; 
   max-width: 1000px; 

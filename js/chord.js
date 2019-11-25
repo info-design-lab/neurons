@@ -92,7 +92,7 @@ function makeChordVis(error, rawdata){
         right: 0
     }
     width = visualization_width - margin.left - margin.right;
-    r = width*0.15;
+    r = width*0.12;
     height = 2*r;
 
     var svg = d3.select('#chord-diagram')
@@ -116,7 +116,7 @@ function makeChordVis(error, rawdata){
     var circles = chord_organism.append('circle')
                 .attr('cx', (d, i) => (r + 20)*Math.cos(angleMap(i + 0.5)))
                 .attr('cy', (d, i) => (r + 20)*Math.sin(angleMap(i + 0.5)))
-                .attr('r', screenScale(25))
+                .attr('r', screenScale(20))
                 .attr('id', (d, i) => "circle_" + i)
                 .style('fill', "#a8a8a8")
                 .style('stroke', (d, i) => ((i == curr_index) ? (order_color[d["Order"]]) : "transparent"))
@@ -155,7 +155,7 @@ function makeChordVis(error, rawdata){
                 })
                 .style('cursor', 'pointer')
                 .attr('font-weight', (d, i) => ((i == curr_index) ? 'bold' : 'normal'))
-                .attr('font-size', (d, i) => ((i == curr_index) ? font_size + 3 : font_size))
+                .attr('font-size', (d, i) => ((i == curr_index) ? font_size + 1 : font_size))
                 .text((d, i) => data[i]["Common Name"]);
 
     chord_organism.append("path")
@@ -229,11 +229,11 @@ function makeChordVis(error, rawdata){
     }
 
     // Rank Visualization
-    const rank_vis_height = 200;
+    const rank_vis_height = 180;
     const rank_margin = {
         left: 200,
         right: 100,
-        top: 45,
+        top: 30,
         bottom: 0
     }
 
@@ -278,7 +278,7 @@ function makeChordVis(error, rawdata){
         .attr('alignment-baseline', 'middle')
         .attr('dominant-baseline', 'middle')
         .attr('font-size', font_size)
-        .attr('font-size', (d, i) => (i == curr_index) ? font_size + 3 : font_size)
+        .attr('font-size', (d, i) => (i == curr_index) ? font_size : font_size)
         .attr('font-weight', (d, i) => (i == curr_index) ? 'bold' : 'normal')
         .text((d, i) => d["Common Name"])
         .attr('cursor', 'pointer')
@@ -343,9 +343,7 @@ function makeChordVis(error, rawdata){
         });
     }
 
-    document.getElementById("chord-image").style.top = margin.top + r;
-
-
+    // document.getElementById("chord-image").style.top = margin.top + r;
 
     function createLegend(){
         d3.selectAll('.legend-lines').remove();
@@ -445,12 +443,12 @@ function makeChordVis(error, rawdata){
 
     function hightlightHoverElements(){
         chord_rank_text
-            .attr('font-size', (d, i) => (rank_hover_index == i || i == curr_index) ? font_size + 3 : font_size)
+            .attr('font-size', (d, i) => (rank_hover_index == i || i == curr_index) ? font_size : font_size)
             // .style('opacity', (d, i) => (rank_hover_index == i || i == curr_index) ? 1 : 0.2)
             .attr('font-weight', (d, i) => (rank_hover_index == i || i == curr_index) ? 'bold' : 'normal');
 
         chord_text
-            .attr('font-size', (d, i) => (rank_hover_index == i || i == curr_index) ? font_size + 3 : font_size)
+            .attr('font-size', (d, i) => (rank_hover_index == i || i == curr_index) ? font_size + 1 : font_size)
             .attr('font-weight', (d, i) => (rank_hover_index == i || i == curr_index) ? 'bold' : 'normal');
 
         rank_connecting_lines
@@ -529,7 +527,7 @@ function transition_chord(){
             .delay(1000)
             .duration(0)
             .attr('font-weight', (d, i) => ((i == curr_index) ? 'bold' : 'normal'))
-            .attr('font-size', (d, i) => ((i == curr_index) ? font_size + 3 : font_size))
+            .attr('font-size', (d, i) => ((i == curr_index) ? font_size + 1 : font_size))
             .attr('text-anchor', function(d, i){
                     const a = (curr_index + 10)%40;
                     const b = (curr_index + 30)%40;
