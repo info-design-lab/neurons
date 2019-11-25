@@ -373,8 +373,25 @@ function makeChordVis(error, rawdata){
                     .attr('dominant-baseline', 'middle')
                     .attr('font-size', font_size)
                     .text(function(){
-                        if(d > 3) return (4 - (data.length - d)) + 'st farthest';
-                        return (d) + 'st closest'
+                        if(d > 3){
+                            if((4 - (data.length - d)) == 1){
+                                return (4 - (data.length - d)) + "st farthest";
+                            } else if((4 - (data.length - d)) == 2){
+                                return (4 - (data.length - d)) + "nd farthest";
+                            }
+                            else if((4 - (data.length - d)) == 3){
+                                return (4 - (data.length - d)) + "rd farthest";
+                            }
+                        }
+
+                        if(d == 1){
+                            return (d) + 'st closest';
+                        } else if(d == 2){
+                            return (d) + 'nd closest';
+                        } else if(d == 3){
+                            return (d) + 'rd closest';
+                        }
+                        
                     });
 
             }
