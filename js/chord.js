@@ -191,11 +191,10 @@ function makeChordVis(error, rawdata){
     createChords();
 
     var legend_width = document.getElementById("visualization").offsetWidth*0.2;
-    var legend_height = 150;
-    var legend_svg = d3.select('#chord-legend')
-                    .append('svg')
-                    .attr('width', legend_width)
-                    .attr('height', legend_height)
+    var legend_height = 50;
+    var legend_svg = svg.append('g')
+        .attr('transform', 'translate(0, ' + (height + margin.top + margin.bottom - legend_height) + ')')
+
 
     createLegend();
 
@@ -242,6 +241,7 @@ function makeChordVis(error, rawdata){
                 .append('svg')
                 .attr('width', rank_vis_width + rank_margin.left + rank_margin.right)
                 .attr('height', rank_vis_height + rank_margin.top + rank_margin.bottom)
+                .style("position", "relative")
                 .append('g')
                 .attr('transform', 'translate(' + rank_margin.left + ', ' + rank_margin.top + ')')
 
@@ -351,14 +351,15 @@ function makeChordVis(error, rawdata){
                     .attr('class', 'legend-lines');
 
 
+        var gap = width/6;
         [1, 2, 3, data.length - 1, data.length - 2, data.length - 3].forEach(function(d, i){
 
             if(chord_ratio.length > 0){
                 legend.append('line')
-                    .attr('x1', 0)
-                    .attr('x2', 50)
-                    .attr('y1', i*20 + 20)
-                    .attr('y2', i*20 + 20)
+                    .attr('x1', gap*i)
+                    .attr('x2', gap*(i) + 40)
+                    .attr('y1', 20)
+                    .attr('y2', 20)
                     .style('fill', 'none')
                     .style('stroke', () => ((d > 3) ? '#ef3b2c' : '#74a9cf'))
                     .style('stroke-width', function(){
@@ -367,8 +368,8 @@ function makeChordVis(error, rawdata){
                     });
 
                 legend.append('text')
-                    .attr('x', 60)
-                    .attr('y', i*20 + 20)
+                    .attr('x', gap*(i) + 45)
+                    .attr('y', 20)
                     .attr('alignment-baseline', 'middle')
                     .attr('dominant-baseline', 'middle')
                     .attr('font-size', font_size)
