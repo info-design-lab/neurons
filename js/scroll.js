@@ -57,11 +57,12 @@ function scrollHandler() {
 		} else if(document.getElementById('sec1-3').getBoundingClientRect().top - window.innerHeight/2 < 0 &&
 			document.getElementById('sec1-3').getBoundingClientRect().top + document.getElementById('sec1-3').getBoundingClientRect().height > 0
 			){
-			if(rank_hover_index !== 22){
-				rank_hover_index = 22;
-				updateRankHover(1000);
-			}
-		}
+			// if(rank_hover_index !== 22){
+			// 	rank_hover_index = 22;
+			// 	updateRankHover(1000);
+			// }
+		} 
+
 	} else if(section2.getBoundingClientRect().top - window.innerHeight < 0 && 
 		section2.getBoundingClientRect().top + section2.getBoundingClientRect().height > 0){
 		makeVisibile(["chord-diagram", "chord-legend", "chord-image", "chord-checkbox", "linear-diagram"]);

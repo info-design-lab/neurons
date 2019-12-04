@@ -26,6 +26,8 @@ function makeRankVis(error, data){
         d["Species"] = d["Species"].trim();
     });
 
+    console.log(data);
+
     const rank_div_width = document.getElementById("visualization").offsetWidth;
     const screenScale = d3.scaleLinear().domain([0, 2560]).range([0, rank_div_width]);
     var offset = 0;
